@@ -1,14 +1,10 @@
-from boto3 import resource, client
-
 from idynamo import arg_builder as ab
 
-def resource_provider(url):
-    return resource('dynamodb', endpoint_url=url)
-
-def operation(description, provider):
+def operation(description, provider, runner):
     return {
         'description': description,
-        'provider': provider
+        'provider': provider,
+        'runner': runner
     }
 
 def create(name, hash_key):
@@ -18,4 +14,6 @@ def create(name, hash_key):
         AttributeDefinitions=ab.build_attribute_definitions([hash_key]),
         ProvisionedThroughput=ab.build_provisioned_throughput()
     )
-    return operation(description, resource_provider)
+    def run(resource):
+        resource.create_table(**description)
+    return operation(description, 'resource', run)

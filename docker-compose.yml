@@ -17,7 +17,7 @@ services:
       - .:/usr/src/idynamo
     links:
       - localstack:localstack
-    command: python -u /usr/src/idynamo/integration_test.py
+    command: python -u /usr/src/idynamo/test/integration.py
 
   ##
   ##  AWS
