@@ -35,3 +35,21 @@ def build_condition_expression(id):
         "name": attribute_name,
         "value": attribute_value
     }
+
+def build_key_schema(hash_key):
+    return [{
+        'AttributeName': hash_key,
+        'KeyType': 'HASH'
+    }]
+
+def build_attribute_definitions(keys):
+    return [{
+        'AttributeName': key,
+        'AttributeType': 'S'
+    } for key in keys]
+
+def build_provisioned_throughput():
+    return {
+        'ReadCapacityUnits': 1,
+        'WriteCapacityUnits': 1
+    }
