@@ -15,3 +15,8 @@ test:
 .PHONY: lint
 lint:
 	pylint biscuit
+
+.PHONY: fresh
+fresh:
+	python3 -m venv venv
+	pip install -r requirements.txt

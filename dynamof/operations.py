@@ -1,15 +1,12 @@
-import copy
-from boto3.dynamodb.conditions import Key
+import copy, collections
 from dynamof import arg_builder as ab
 from dynamof.utils import new_id
 
 
-def operation(description, provider, runner):
-    return {
-        'description': description,
-        'provider': provider,
-        'runner': runner
-    }
+Operation = collections.namedtuple("Operation", [
+    "description",
+    "runner"
+])
 
 
 def create(table_name, hash_key, allow_existing=False):
@@ -25,16 +22,17 @@ def create(table_name, hash_key, allow_existing=False):
         except client.exceptions.ResourceInUseException as err:
             if allow_existing is False:
                 raise err
-    return operation(description, 'client', run)
+    return Operation(description, run)
 
 
 def find(table_name, key):
     description = dict(
-        Key=ab.build_key(key)
+        TableName=table_name,
+        Key=ab.build_value_type_tree(key)
     )
-    def run(resource):
-        return resource.Table(table_name).get_item(**description)
-    return operation(description, 'resource', run)
+    def run(client):
+        return client.get_item(**description)
+    return Operation(description, run)
 
 
 def add(table_name, item, auto_inc=False):
@@ -42,32 +40,34 @@ def add(table_name, item, auto_inc=False):
     if auto_inc is True:
         attributes['id'] = new_id()
     description = dict(
-        Item=attributes
+        TableName=table_name,
+        Item=ab.build_value_type_tree(attributes)
     )
-    def run(resource):
-        return resource.Table(table_name).put_item(**description)
-    return operation(description, 'resource', run)
+    def run(client):
+        return client.put_item(**description)
+    return Operation(description, run)
 
 
 def update(table_name, key, attributes):
-    condition_expression_obj = ab.build_condition_expression(key)
     description = dict(
-        Key=ab.build_key(key),
-        ConditionExpression=Key(condition_expression_obj['name']).eq(condition_expression_obj['value']),
+        TableName=table_name,
+        Key=ab.build_value_type_tree(key),
+        ConditionExpression=ab.build_condition_expression(key),
         UpdateExpression=ab.build_update_expression(attributes),
-        ExpressionAttributeValues=ab.build_expression_attribute_values(attributes)
+        ExpressionAttributeValues=ab.build_expression_attribute_values({**key, **attributes})
     )
-    def run(resource):
-        resource.Table(table_name).update_item(**description)
-    return operation(description, 'resource', run)
+    def run(client):
+        return client.update_item(**description)
+    return Operation(description, run)
 
 
 def delete(table_name, key):
-    condition_expression_obj = ab.build_condition_expression(key)
     description = dict(
-        Key = ab.build_key(key),
-        ConditionExpression = Key(condition_expression_obj['name']).eq(condition_expression_obj['value']),
+        TableName=table_name,
+        Key=ab.build_value_type_tree(key),
+        ConditionExpression=ab.build_condition_expression(key),
+        ExpressionAttributeValues=ab.build_expression_attribute_values(key)
     )
-    def run(resource):
-        resource.Table(table_name).delete_item(**description)
-    return operation(description, 'resource', run)
+    def run(client):
+        client.delete_item(**description)
+    return Operation(description, run)

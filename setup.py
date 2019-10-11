@@ -1,17 +1,20 @@
 import setuptools
 
+VERSION='0.0.2'
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="dynamof",
-    version="0.0.1",
+    version=VERSION,
     author="Ray Epps",
     author_email="rayharryepps@gmail.com",
     description="A small interface for more easily making calls to dynamo using boto.",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rayepps/dynamof",
-    download_url = 'https://github.com/rayepps/dynamof/archive/0.0.1.tar.gz',
+    download_url = f'https://github.com/rayepps/dynamof/archive/{VERSION}.tar.gz',
     packages=setuptools.find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',
