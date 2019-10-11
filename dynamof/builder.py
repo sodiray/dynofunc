@@ -93,10 +93,12 @@ def build_value_type_item(data):
     tree = {}
     data_type = detect_type(data)
 
+    # If its a list - build a tree item for each item
     if data_type == 'L':
         tree[data_type] = [build_value_type_item(item) for item in data]
         return tree
 
+    # If its a map/dict - build a tree for each attribute
     if data_type == 'M':
         tree[data_type] = build_value_type_tree(data)
         return tree
@@ -105,10 +107,12 @@ def build_value_type_item(data):
         tree['NULL'] = True
         return tree
 
+    # If its a set - convert it to a list (boto3 friendly)
     if data_type in [ 'SS', 'NS', 'BS' ]:
         tree[data_type] = list(data)
         return tree
 
+    # For the rest of the simple types
     tree[data_type] = data
 
     return tree

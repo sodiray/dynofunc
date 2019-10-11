@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from functools import partial
-from boto3 import resource, client
+from boto3 import client
 
 from dynamof.executor import execute
 from dynamof.operations import (
@@ -13,7 +13,8 @@ from dynamof.operations import (
 )
 
 url = 'http://localstack:4569'
-db = partial(execute, url)
+client = client('dynamodb', endpoint_url=url)
+db = partial(execute, client)
 
 debug = lambda msg: print(f'###########\n{msg}\n###########\n')
 

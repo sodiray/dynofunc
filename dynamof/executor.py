@@ -1,11 +1,6 @@
-from boto3 import resource, client
-
-def get_client(url):
-    return client('dynamodb', endpoint_url=url)
 
 
-def execute(url, operation):
+def execute(client, operation):
     runner = operation.runner
     description = operation.description
-    client = get_client(url)
     return runner(client, description)

@@ -10,4 +10,4 @@ A small interface for more easily making calls to dynamo using boto. No bloated 
 [] handle errors
 [] implement scan
 [] implement query
-[] document readme
+[] documentation
