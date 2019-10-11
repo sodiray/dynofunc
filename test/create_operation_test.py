@@ -6,16 +6,16 @@ from test.assertions import assertIsOperation
 from idynamo.operations import create
 
 def test_create_is_operation():
-    res = create(name='users', hash_key='username')
+    res = create(table_name='users', hash_key='username')
     assertIsOperation(res)
 
 def test_create_description_key_schema():
-    res = create(name='users', hash_key='username')
+    res = create(table_name='users', hash_key='username')
     assert res['description']['TableName'] == 'users'
 
 
 def test_create_description_key_schema():
-    res = create(name='users', hash_key='username')
+    res = create(table_name='users', hash_key='username')
     KeySchema = res['description']['KeySchema']
     assert len(KeySchema) == 1
     schema_item = KeySchema[0]
@@ -23,7 +23,7 @@ def test_create_description_key_schema():
     assert schema_item['KeyType'] == 'HASH'
 
 def test_create_description_key_schema():
-    res = create(name='users', hash_key='username')
+    res = create(table_name='users', hash_key='username')
     AttributeDefinitions = res['description']['AttributeDefinitions']
     assert len(AttributeDefinitions) == 1
     definition_item = AttributeDefinitions[0]
@@ -31,7 +31,7 @@ def test_create_description_key_schema():
     assert definition_item['AttributeType'] == 'S'
 
 def test_create_description_provisioned_throughputs():
-    res = create(name='users', hash_key='username')
+    res = create(table_name='users', hash_key='username')
     ProvisionedThroughput = res['description']['ProvisionedThroughput']
     assert ProvisionedThroughput['ReadCapacityUnits'] == 1
     assert ProvisionedThroughput['WriteCapacityUnits'] == 1
