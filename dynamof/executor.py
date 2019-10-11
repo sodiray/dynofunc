@@ -6,5 +6,6 @@ def get_client(url):
 
 def execute(url, operation):
     runner = operation.runner
+    description = operation.description
     client = get_client(url)
-    return runner(client)
+    return runner(client, description)

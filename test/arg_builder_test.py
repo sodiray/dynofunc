@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
-from dynamof import arg_builder as ab
+from dynamof import builder as ab
 
 def test_build_update_expression():
     res = ab.build_update_expression({

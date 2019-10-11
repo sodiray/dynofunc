@@ -1,5 +1,6 @@
 import copy, collections
-from dynamof import arg_builder as ab
+from dynamof import builder as ab
+from dynamof import runners
 from dynamof.utils import new_id
 
 
@@ -16,13 +17,9 @@ def create(table_name, hash_key, allow_existing=False):
         AttributeDefinitions=ab.build_attribute_definitions([hash_key]),
         ProvisionedThroughput=ab.build_provisioned_throughput()
     )
-    def run(client):
-        try:
-            return client.create_table(**description)
-        except client.exceptions.ResourceInUseException as err:
-            if allow_existing is False:
-                raise err
-    return Operation(description, run)
+    return Operation(description, runners.create(
+        allow_existing=allow_existing
+    ))
 
 
 def find(table_name, key):
@@ -30,9 +27,7 @@ def find(table_name, key):
         TableName=table_name,
         Key=ab.build_value_type_tree(key)
     )
-    def run(client):
-        return client.get_item(**description)
-    return Operation(description, run)
+    return Operation(description, runners.find())
 
 
 def add(table_name, item, auto_inc=False):
@@ -43,9 +38,7 @@ def add(table_name, item, auto_inc=False):
         TableName=table_name,
         Item=ab.build_value_type_tree(attributes)
     )
-    def run(client):
-        return client.put_item(**description)
-    return Operation(description, run)
+    return Operation(description, runners.add())
 
 
 def update(table_name, key, attributes):
@@ -56,9 +49,7 @@ def update(table_name, key, attributes):
         UpdateExpression=ab.build_update_expression(attributes),
         ExpressionAttributeValues=ab.build_expression_attribute_values({**key, **attributes})
     )
-    def run(client):
-        return client.update_item(**description)
-    return Operation(description, run)
+    return Operation(description, runners.update())
 
 
 def delete(table_name, key):
@@ -68,6 +59,4 @@ def delete(table_name, key):
         ConditionExpression=ab.build_condition_expression(key),
         ExpressionAttributeValues=ab.build_expression_attribute_values(key)
     )
-    def run(client):
-        client.delete_item(**description)
-    return Operation(description, run)
+    return Operation(description, runners.delete())
