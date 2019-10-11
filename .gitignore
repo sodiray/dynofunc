@@ -1,0 +1,14 @@
+*.py[co]
+__pycache__
+.pytest_cache
+
+# Translations compiled files
+*.mo
+
+# Local development ignores
+venv
+
+# Other stuff here
+.DS_Store
+htmlcov
+.coverage

@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+
+  ##
+  ## INTEGRATION TESTS
+  ##
+  integration_tests:
+    build:
+      context: .
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_ACCESS_KEY_ID=ignoredbutrequiredtowork
+      - AWS_SECRET_ACCESS_KEY=ignoredbutrequiredtowork
+    volumes:
+      - .:/usr/src/idynamo
+    links:
+      - localstack:localstack
+    command: python -u /usr/src/idynamo/integration_test.py
+
+  ##
+  ##  AWS
+  ##
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4569:4569"
+    environment:
+      - SERVICES=dynamodb
+      - DEBUG=1
