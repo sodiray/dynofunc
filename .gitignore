@@ -12,3 +12,5 @@ venv
 .DS_Store
 htmlcov
 .coverage
+dist/
+dynamof.egg-info

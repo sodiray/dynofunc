@@ -1,8 +1,12 @@
 
 
 .PHONY: build-distribution
-build-distribution:
-	@echo "building..."
+build-dist:
+	python setup.py sdist
+
+.PHONY: upload-dist
+upload-dist:
+	twine upload dist/*
 
 .PHONY: test
 test:
