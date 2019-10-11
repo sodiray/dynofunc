@@ -3,7 +3,7 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.assertions import assertIsOperation
 
-from idynamo.operations import create
+from dynamof.operations import create
 
 def test_create_is_operation():
     res = create(table_name='users', hash_key='username')

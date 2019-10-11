@@ -1,7 +1,7 @@
 import copy
 from boto3.dynamodb.conditions import Key
-from idynamo import arg_builder as ab
-from idynamo.utils import new_id
+from dynamof import arg_builder as ab
+from dynamof.utils import new_id
 
 
 def operation(description, provider, runner):

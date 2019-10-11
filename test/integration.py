@@ -3,8 +3,8 @@
 from functools import partial
 from boto3 import resource, client
 
-from idynamo.executor import execute
-from idynamo.operations import (
+from dynamof.executor import execute
+from dynamof.operations import (
     create,
     find,
     add,
