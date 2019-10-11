@@ -16,13 +16,15 @@ def build_expression_attribute_values(data):
         res[f':{key}'] = value
     return res
 
-def build_key(id):
+def build_key(identifier):
     """Used to build the proper Key object
     for dynamo"""
-    key = { 'id': id }
-    if isinstance(id, dict):
-        key = id
-    return key
+    if isinstance(identifier, dict):
+        return identifier
+    else:
+        return {
+            'id': identifier # default to 'id' for primitives like string
+        }
 
 def build_condition_expression(id):
     attribute_name = 'id' # default
