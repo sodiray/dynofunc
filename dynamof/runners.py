@@ -1,12 +1,16 @@
+import sys
 
+from dynamof import exceptions
 
 def create(allow_existing):
     def run(client, description):
         try:
             return client.create_table(**description)
-        except client.exceptions.ResourceInUseException as err:
-            if allow_existing is False:
-                raise err
+        except Exception as err:
+            if exceptions.PreexistingTableException.maps_to(err):
+                if allow_existing is False:
+                    table_name = description.get('TableName')
+                    raise exceptions.PreexistingTableException().info(f'table={table_name}')
     return run
 
 def find():
@@ -26,5 +30,5 @@ def update():
 
 def delete():
     def run(client, description):
-        client.delete_item(**description)
+        return client.delete_item(**description)
     return run

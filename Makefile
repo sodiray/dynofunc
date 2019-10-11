@@ -10,7 +10,7 @@ upload-dist:
 
 .PHONY: test
 test:
-	PYTHONPATH=`pwd` python3 -m pytest --cov=dynamof --cov-report term:skip-covered --cov-fail-under=100 test/
+	PYTHONPATH=`pwd` python3 -m pytest --cov=dynamof --cov-report term:skip-covered --cov-fail-under=100 --cov-report html test/
 
 .PHONY: lint
 lint:

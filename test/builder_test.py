@@ -42,11 +42,16 @@ def test_build_value_type_tree():
         'username': 'rayepps',
         'user_id': 23,
         'roles': set([ 'admin', 'user' ]),
+        'friend_ids': set([ 23, 282, 98 ]),
         'timming': [ 23, 56, 22, 11 ],
         'position': None,
+        'isActive': True,
         'extra': {
             'food': [ 'american', 43 ]
-        }
+        },
+        'danger': 'τoρνoς'.encode('utf-8'),
+        'danger_set': set([ 'τoρνoς'.encode('utf-8') ]),
+        'mixed_danger_set': set([ 'τoρνoς'.encode('utf-8'), 'x', 23 ])
     })
 
     # Assert string type is built
@@ -57,10 +62,23 @@ def test_build_value_type_tree():
     assert res['user_id'] is not None
     assert res['user_id']['N'] == 23
 
+    # Assert byte type is built
+    assert res['danger'] is not None
+    assert res['danger']['B'] == 'τoρνoς'.encode('utf-8')
+
+    # Assert bool type is built
+    assert res['isActive'] is not None
+    assert res['isActive']['BOOL'] == True
+
     # Assert string set type is built
     assert res['roles'] is not None
     assert 'user' in res['roles']['SS']
     assert 'admin' in res['roles']['SS']
+
+    # Assert string set type is built
+    assert res['friend_ids'] is not None
+    assert 23 in res['friend_ids']['NS']
+    assert 98 in res['friend_ids']['NS']
 
     # Assert list type is built
     assert res['timming'] is not None
@@ -78,3 +96,14 @@ def test_build_value_type_tree():
     assert res['extra']['M'] is not None
     assert res['extra']['M']['food']['L'][0]['S'] == 'american'
     assert res['extra']['M']['food']['L'][1]['N'] == 43
+
+    # Assert set(byte) type is built
+    assert res['danger_set'] is not None
+    assert 'τoρνoς'.encode('utf-8') in res['danger_set']['BS']
+
+    # Assert set(byte) type is built
+    assert res['mixed_danger_set'] is not None
+    assert 23 in res['mixed_danger_set']['SS']
+    assert 'x' in res['mixed_danger_set']['SS']
+
+# def test_build_
