@@ -2,54 +2,44 @@ import numbers
 from enum import Enum
 from boto3.dynamodb.conditions import Key
 
-def build_update_expression(data):
+def update_expression(data):
     """Builds a string thats a dynamo friendly
     expression"""
     keys = [f'{key} = :{key}' for key, value in data.items()]
     key_expression = ', '.join(keys)
     return f'SET {key_expression}'
 
-def build_expression_attribute_values(data):
+def expression_attribute_values(data):
     """Builds an object that contains ':'
     prepended to the key to make a dynamo
     friendly ExpressionAttributeValues"""
-    values = build_value_type_tree(data)
+    values = value_type_tree(data)
     exp_values = {}
     for key, value in values.items():
         exp_values[f':{key}'] = value
     return exp_values
 
 
-def build_key(identifier):
-    """Used to build the proper Key object
-    for dynamo"""
-    if isinstance(identifier, dict):
-        return identifier
-    else:
-        return {
-            'id': identifier # default to 'id' for primitives like string
-        }
-
-def build_condition_expression(id):
+def condition_expression(id):
     key = 'id' # default
     if isinstance(id, dict):
         keys = list(id.keys())
         key = keys[0]
     return f'{key} = :{key}'
 
-def build_key_schema(hash_key):
+def key_schema(hash_key):
     return [{
         'AttributeName': hash_key,
         'KeyType': 'HASH'
     }]
 
-def build_attribute_definitions(keys):
+def attribute_definitions(keys):
     return [{
         'AttributeName': key,
         'AttributeType': 'S'
     } for key in keys]
 
-def build_provisioned_throughput():
+def provisioned_throughput():
     return {
         'ReadCapacityUnits': 1,
         'WriteCapacityUnits': 1
@@ -83,24 +73,24 @@ def detect_type(value):
             return 'NS' # set that is all number type
         if all(st == 'B' for st in sub_types):
             return 'BS' # set that is all byte type
-        return 'SS' # default to type string set
+        return 'SS' # default to type string set for mixed types
 
     if hasattr(value, 'decode'):
         return 'B'
 
-def build_value_type_item(data):
+def value_type_item(data):
 
     tree = {}
     data_type = detect_type(data)
 
     # If its a list - build a tree item for each item
     if data_type == 'L':
-        tree[data_type] = [build_value_type_item(item) for item in data]
+        tree[data_type] = [value_type_item(item) for item in data]
         return tree
 
     # If its a map/dict - build a tree for each attribute
     if data_type == 'M':
-        tree[data_type] = build_value_type_tree(data)
+        tree[data_type] = value_type_tree(data)
         return tree
 
     if data_type == 'NULL':
@@ -117,11 +107,11 @@ def build_value_type_item(data):
 
     return tree
 
-def build_value_type_tree(data):
+def value_type_tree(data):
 
     tree = {}
     for key, value in data.items():
-        tree[key] = build_value_type_item(value)
+        tree[key] = value_type_item(value)
     return tree
 
-# def build_attribute_updates_tree(data):
+# def attribute_updates_tree(data):

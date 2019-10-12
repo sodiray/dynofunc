@@ -13,9 +13,9 @@ Operation = collections.namedtuple("Operation", [
 def create(table_name, hash_key, allow_existing=False):
     description = dict(
         TableName=table_name,
-        KeySchema=ab.build_key_schema(hash_key),
-        AttributeDefinitions=ab.build_attribute_definitions([hash_key]),
-        ProvisionedThroughput=ab.build_provisioned_throughput()
+        KeySchema=ab.key_schema(hash_key),
+        AttributeDefinitions=ab.attribute_definitions([hash_key]),
+        ProvisionedThroughput=ab.provisioned_throughput()
     )
     return Operation(description, runners.create(
         allow_existing=allow_existing
@@ -25,7 +25,7 @@ def create(table_name, hash_key, allow_existing=False):
 def find(table_name, key):
     description = dict(
         TableName=table_name,
-        Key=ab.build_value_type_tree(key)
+        Key=ab.value_type_tree(key)
     )
     return Operation(description, runners.find())
 
@@ -36,7 +36,7 @@ def add(table_name, item, auto_inc=False):
         attributes['id'] = new_id()
     description = dict(
         TableName=table_name,
-        Item=ab.build_value_type_tree(attributes)
+        Item=ab.value_type_tree(attributes)
     )
     return Operation(description, runners.add())
 
@@ -44,10 +44,10 @@ def add(table_name, item, auto_inc=False):
 def update(table_name, key, attributes):
     description = dict(
         TableName=table_name,
-        Key=ab.build_value_type_tree(key),
-        ConditionExpression=ab.build_condition_expression(key),
-        UpdateExpression=ab.build_update_expression(attributes),
-        ExpressionAttributeValues=ab.build_expression_attribute_values({**key, **attributes})
+        Key=ab.value_type_tree(key),
+        ConditionExpression=ab.condition_expression(key),
+        UpdateExpression=ab.update_expression(attributes),
+        ExpressionAttributeValues=ab.expression_attribute_values({**key, **attributes})
     )
     return Operation(description, runners.update())
 
@@ -55,8 +55,8 @@ def update(table_name, key, attributes):
 def delete(table_name, key):
     description = dict(
         TableName=table_name,
-        Key=ab.build_value_type_tree(key),
-        ConditionExpression=ab.build_condition_expression(key),
-        ExpressionAttributeValues=ab.build_expression_attribute_values(key)
+        Key=ab.value_type_tree(key),
+        ConditionExpression=ab.condition_expression(key),
+        ExpressionAttributeValues=ab.expression_attribute_values(key)
     )
     return Operation(description, runners.delete())
