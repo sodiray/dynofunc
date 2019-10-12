@@ -107,4 +107,14 @@ def test_value_type_tree():
     assert res['klass'] is not None
     assert res['klass']['S'] is not None
 
-# def test_
+def test_destructure_type_tree():
+    res = ab.destructure_type_tree({
+        "id": {
+            "S": "aaa"
+        },
+        "username": {
+            "S": "sunshie"
+        }
+    })
+    assert res['id'] == 'aaa'
+    assert res['username'] == 'sunshie'

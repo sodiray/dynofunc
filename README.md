@@ -8,7 +8,16 @@ A small interface for more easily making calls to dynamo using boto. No bloated 
 [x] testing
 [x] linter
 [x] implement query
-[] implement scan
-[] implement response object
+[] implement response object & destructure response Item tree
 [] handle errors
 [] documentation
+NOTE: MVP version 1.0.0
+[] implement scan
+[] query support pagination
+[] query support indexes
+[] support projection expressions
+[] support filter expressions
+NOTE: version 1.2.0
+[] batch operations
+[] metadata operations
+[] update table operation

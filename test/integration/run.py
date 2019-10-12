@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 from functools import partial
 from boto3 import client
 
@@ -19,26 +20,45 @@ client = client('dynamodb', endpoint_url=url)
 db = partial(execute, client)
 
 debug = lambda msg: print(f'###########\n{msg}\n###########\n')
+pprint = lambda data: print(json.dumps(data, indent=2))
 
 def setup_test_tables():
     debug('Create Users Table')
-    db(create(table_name='users', hash_key='username', allow_existing=True))
+    res = db(create(table_name='users', hash_key='username', allow_existing=True))
+    pprint(res)
 
 
 def run_tests():
 
     debug('Adding User')
-    db(add(table_name='users', item={
+    res = db(add(table_name='users', item={
+        'id': 'aaaaaa',
         'username': 'sunshie'
     }))
+    pprint(res)
+
+    debug('Adding User')
+    res = db(add(table_name='users', item={
+        'id': 'aaaaaa',
+        'username': 'sunshie'
+    }))
+    pprint(res)
+
+    debug('Adding User')
+    res = db(add(table_name='users', item={
+        'id': 'aaaaaa',
+        'username': 'sunshie'
+    }))
+    pprint(res)
 
     debug('Finding User')
-    db(find(table_name='users', key={
+    res = db(find(table_name='users', key={
         'username': 'sunshie'
     }))
+    pprint(res)
 
     debug('Updating User')
-    db(update(
+    res = db(update(
         table_name='users',
         key={
             'username': 'sunshie'
@@ -46,19 +66,20 @@ def run_tests():
         attributes={
             'user_status': 'unleashed'
         }))
+    pprint(res)
 
     debug('Querying users')
-    users = db(query(
+    res = db(query(
         table_name='users',
         conditions=attr('username').equals('sunshie')
     ))
-    debug('USERS')
-    print(users)
+    pprint(res)
 
     debug('Deleting User')
-    db(delete(table_name='users', key={
+    res = db(delete(table_name='users', key={
         'username': 'sunshie'
     }))
+    pprint(res)
 
 
 

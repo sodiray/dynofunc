@@ -37,7 +37,8 @@ def add(table_name, item, auto_inc=False):
         attributes['id'] = new_id()
     description = dict(
         TableName=table_name,
-        Item=ab.value_type_tree(attributes)
+        Item=ab.value_type_tree(attributes),
+        ReturnValues='ALL_OLD'
     )
     return Operation(description, runners.add())
 
@@ -48,7 +49,8 @@ def update(table_name, key, attributes):
         Key=ab.value_type_tree(key),
         ConditionExpression=ab.condition_expression(key),
         UpdateExpression=ab.update_expression(attributes),
-        ExpressionAttributeValues=ab.expression_attribute_values({**key, **attributes})
+        ExpressionAttributeValues=ab.expression_attribute_values({**key, **attributes}),
+        ReturnValues='ALL_NEW'
     )
     return Operation(description, runners.update())
 

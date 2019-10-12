@@ -115,4 +115,13 @@ def value_type_tree(data):
         tree[key] = value_type_item(value)
     return tree
 
-# def attribute_updates_tree(data):
+def destructure_type_tree(data):
+    if data is None:
+        return None
+    result = {}
+    for key_name, type_obj in data.items():
+        result = {
+            **result,
+            key_name: list(type_obj.values())[0]
+        }
+    return result
