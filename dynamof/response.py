@@ -11,7 +11,7 @@ get_scanned_count = lambda response: response.get('ScannedCount', None)
 def create_response(response, skipped=False):
 
     return {
-        'table_already_existed': response == None and skipped is True,
+        'table_already_existed': response is None and skipped is True,
         'retries': get_retries(response or {}),
         'success': get_success(response or {}),
         'raw': response

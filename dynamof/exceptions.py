@@ -15,16 +15,36 @@ class PreexistingTableException(DynamofException):
         message = "Attempted to create a table that already exists"
         super().__init__(message)
     @classmethod
-    def maps_to(cls, err):
+    def matches(cls, err):
         key = 'Cannot create preexisting table'
-        return key in str(err)
+        return err.response.get('Error', {}).get('Message') == key
 
-class DatabaseFindException(DynamofException):
+class TableDoesNotExistException(DynamofException):
     def __init__(self):
-        message = "Could not find entity"
+        message = "Attempted to do operation on a table that does not exist"
         super().__init__(message)
+    @classmethod
+    def matches(cls, err):
+        key = 'Cannot do operations on a non-existent table'
+        return err.response.get('Error', {}).get('Message') == key
 
-class UnknownException(DynamofException):
+class ConditionNotMetException(DynamofException):
     def __init__(self):
-        message = "Unknown error occured while communicating with dynamo"
+        message = "Could not find an item that satisifed the given conditions"
+        super().__init__(message)
+    @classmethod
+    def matches(cls, err):
+        return err is not None and err.response.get('Error', {}).get('Code', '') == 'ConditionalCheckFailedException'
+
+class BadGatewayException(DynamofException):
+    def __init__(self):
+        message = "Issue communicating with dynamo"
+        super().__init__(message)
+    @classmethod
+    def matches(cls, err):
+        return err is not None and err.response.get('Error').get('Message') == 'Bad Gateway'
+
+class UnknownDatabaseException(DynamofException):
+    def __init__(self):
+        message = "An unkonwn exception occured when executing request to dynamo"
         super().__init__(message)
