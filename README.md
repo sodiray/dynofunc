@@ -8,7 +8,7 @@ A small interface for more easily making calls to dynamo using boto. No bloated 
 [x] testing
 [x] linter
 [x] implement query
-[] implement response object & destructure response Item tree
+[x] implement response object & destructure response Item tree
 [] handle errors
 [] documentation
 NOTE: MVP version 1.0.0

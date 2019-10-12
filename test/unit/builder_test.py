@@ -118,3 +118,7 @@ def test_destructure_type_tree():
     })
     assert res['id'] == 'aaa'
     assert res['username'] == 'sunshie'
+
+def test_destructure_type_tree_handles_none():
+    res = ab.destructure_type_tree(None)
+    assert res is None
