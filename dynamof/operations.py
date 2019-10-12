@@ -1,4 +1,5 @@
-import copy, collections
+import copy
+import collections
 from dynamof import builder as ab
 from dynamof import runners
 from dynamof.utils import new_id

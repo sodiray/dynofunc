@@ -1,6 +1,5 @@
 import numbers
-from enum import Enum
-from boto3.dynamodb.conditions import Key
+
 
 def update_expression(data):
     """Builds a string thats a dynamo friendly
@@ -45,7 +44,7 @@ def provisioned_throughput():
         'WriteCapacityUnits': 1
     }
 
-def detect_type(value):
+def detect_type(value): # pylint: disable=too-many-return-statements
 
     if value is None:
         return 'NULL' # null/none
@@ -77,6 +76,8 @@ def detect_type(value):
 
     if hasattr(value, 'decode'):
         return 'B'
+
+    return 'S' # if for some reason the type could not be detected default to string
 
 def value_type_item(data):
 

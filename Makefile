@@ -14,7 +14,7 @@ test:
 
 .PHONY: lint
 lint:
-	pylint biscuit
+	pylint dynamof
 
 .PHONY: fresh
 fresh:
