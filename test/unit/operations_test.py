@@ -3,12 +3,14 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.utils.assertions import assertIsOperation
 
+from dynamof import conditions as cond
 from dynamof.operations import (
     create,
     find,
     add,
     update,
-    delete
+    delete,
+    query
 )
 
 def test_create_is_operation():
@@ -44,48 +46,56 @@ def test_create_description_provisioned_throughputs():
 
 
 def test_find_is_operation():
-    res = find(table_name='users', key={ 'username': 'rayepps '})
+    res = find(table_name='users', key={ 'username': 'sunshie '})
     assertIsOperation(res)
 
 def test_find_creates_description_with_table_name():
-    res = find(table_name='users', key={ 'username': 'rayepps '})
+    res = find(table_name='users', key={ 'username': 'sunshie '})
     description = res.description
     assert description['TableName'] == 'users'
 
 
 
 def test_add_is_operation():
-    res = add(table_name='users', item={ 'username': 'rayepps '})
+    res = add(table_name='users', item={ 'username': 'sunshie '})
     assertIsOperation(res)
 
 def test_add_creates_description_with_table_name():
-    res = add(table_name='users', item={ 'username': 'rayepps '})
+    res = add(table_name='users', item={ 'username': 'sunshie '})
     description = res.description
     assert description['TableName'] == 'users'
 
 def test_add_creates_description_auto_incraments():
-    res = add(table_name='users', item={ 'username': 'rayepps '}, auto_inc=True)
+    res = add(table_name='users', item={ 'username': 'sunshie '}, auto_inc=True)
     description = res.description
     assert description['Item']['id'] is not None
 
 
 
 def test_update_is_operation():
-    res = update(table_name='users', key={ 'username': 'rayepps '}, attributes={ 'role': 'admin' })
+    res = update(table_name='users', key={ 'username': 'sunshie '}, attributes={ 'role': 'admin' })
     assertIsOperation(res)
 
 def test_update_creates_description_with_table_name():
-    res = update(table_name='users', key={ 'username': 'rayepps '}, attributes={ 'role': 'admin' })
+    res = update(table_name='users', key={ 'username': 'sunshie '}, attributes={ 'role': 'admin' })
     description = res.description
     assert description['TableName'] == 'users'
 
 
 
 def test_delete_is_operation():
-    res = delete(table_name='users', key={ 'username': 'rayepps '})
+    res = delete(table_name='users', key={ 'username': 'sunshie '})
     assertIsOperation(res)
 
 def test_delete_creates_description_with_table_name():
-    res = delete(table_name='users', key={ 'username': 'rayepps '})
+    res = delete(table_name='users', key={ 'username': 'sunshie '})
     description = res.description
     assert description['TableName'] == 'users'
+
+
+def test_query_is_operation():
+    res = query(
+        table_name='users',
+        conditions=cond.attr('username').equals('sunshie')
+    )
+    assertIsOperation(res)

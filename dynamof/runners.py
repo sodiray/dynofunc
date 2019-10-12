@@ -31,3 +31,8 @@ def delete():
     def run(client, description):
         return client.delete_item(**description)
     return run
+
+def query():
+    def run(client, description):
+        return client.query(**description)
+    return run

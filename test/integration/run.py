@@ -3,13 +3,15 @@
 from functools import partial
 from boto3 import client
 
+from dynamof.conditions import attr
 from dynamof.executor import execute
 from dynamof.operations import (
     create,
     find,
     add,
     update,
-    delete
+    delete,
+    query
 )
 
 url = 'http://localstack:4569'
@@ -44,6 +46,14 @@ def run_tests():
         attributes={
             'user_status': 'unleashed'
         }))
+
+    debug('Querying users')
+    users = db(query(
+        table_name='users',
+        conditions=attr('username').equals('sunshie')
+    ))
+    debug('USERS')
+    print(users)
 
     debug('Deleting User')
     db(delete(table_name='users', key={

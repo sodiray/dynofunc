@@ -61,3 +61,11 @@ def delete(table_name, key):
         ExpressionAttributeValues=ab.expression_attribute_values(key)
     )
     return Operation(description, runners.delete())
+
+def query(table_name, conditions):
+    description = dict(
+        TableName=table_name,
+        KeyConditionExpression=conditions.expression,
+        ExpressionAttributeValues=conditions.attr_values
+    )
+    return Operation(description, runners.query())
