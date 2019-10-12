@@ -17,7 +17,7 @@ services:
       - .:/usr/src/dynamof
     links:
       - localstack:localstack
-    command: python -u /usr/src/dynamof/test/integration.py
+    command: python -u /usr/src/dynamof/test/integration/run.py
 
   ##
   ##  AWS

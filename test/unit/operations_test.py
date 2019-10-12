@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
-from test.assertions import assertIsOperation
+from test.utils.assertions import assertIsOperation
 
 from dynamof.operations import (
     create,

@@ -4,7 +4,8 @@ A small interface for more easily making calls to dynamo using boto. No bloated 
 
 ## TODO
 
-[] testing
+[x] testing
+[x] linter
 [] implement response object
 [x] only use client & kill resource
 [] handle errors

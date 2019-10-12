@@ -30,6 +30,10 @@ def test_condition_expression_uses_obj():
     assert res == 'myid = :myid'
 
 def test_value_type_tree():
+
+    class BadValue:
+        pass
+
     res = ab.value_type_tree({
         'username': 'rayepps',
         'user_id': 23,
@@ -43,7 +47,8 @@ def test_value_type_tree():
         },
         'danger': 'τoρνoς'.encode('utf-8'),
         'danger_set': set([ 'τoρνoς'.encode('utf-8') ]),
-        'mixed_danger_set': set([ 'τoρνoς'.encode('utf-8'), 'x', 23 ])
+        'mixed_danger_set': set([ 'τoρνoς'.encode('utf-8'), 'x', 23 ]),
+        'klass': BadValue()
     })
 
     # Assert string type is built
@@ -97,5 +102,9 @@ def test_value_type_tree():
     assert res['mixed_danger_set'] is not None
     assert 23 in res['mixed_danger_set']['SS']
     assert 'x' in res['mixed_danger_set']['SS']
+
+    # Assert unknown type (class) gets defaulted to string
+    assert res['klass'] is not None
+    assert res['klass']['S'] is not None
 
 # def test_
