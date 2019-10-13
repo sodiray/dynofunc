@@ -257,17 +257,17 @@ Takes any number of condition expressions and combines them using the _and_ rule
 - :white_check_mark: implement response object & destructure response Item tree
 - :white_check_mark: handle errors
 - :white_check_mark: documentation
-- :x: setup travis
-- :x: move builder to `core` module
+ setup travis
+ move builder to `core` module
 - :checkered_flag: `version 1.0.0`
-- :x: implement scan
-- :x: query support pagination
-- :x: query support indexes
-- :x: support projection expressions
-- :x: support filter expressions   
+ implement scan
+ query support pagination
+ query support indexes
+ support projection expressions
+ support filter expressions   
 - :checkered_flag: `version 1.2.0`
-- :x: batch operations
-- :x: metadata operations
-- :x: update table operation
+ batch operations
+ metadata operations
+ update table operation
 - ...
 - :checkered_flag: `version 2.0.0`
