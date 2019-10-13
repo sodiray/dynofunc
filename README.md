@@ -21,7 +21,7 @@ A small :fire: interface for more easily making calls to dynamo using boto. No b
 `dynamof` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynamof` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
 
 ## Example: Create a table in dynamo
-```
+```py
 from boto3 import client
 from dynamof.executor import execute
 from dynamof.operations import create
@@ -33,7 +33,7 @@ execute(client, create(table_name='users', hash_key='username'))
 First thing to note... `execute(client, some_operation(...))` isn't _sexy_... and as engineers _sexy_ is important. Because `dynamof` is a simple functional utility library its very easy to bend it into any api you would like.
 
 ## Example: Customize the way you call dynamof
-```
+```py
 # Keep it functional
 
 from functools import partial
@@ -63,7 +63,7 @@ db.find(key={ 'id': 21 })
 ```
 
 ## Example: Catch errors from dynamof
-```
+```py
 from dynamof.exceptions import (
     UnknownDatabaseException,
     ConditionNotMetException,
@@ -88,7 +88,7 @@ except UnknownDatabaseException:
 ```
 
 ## Example: Use dynamof as sugar to call boto3 yourself
-```
+```py
 from dynamof import operations
 from dynamof.conditions import attr
 
@@ -208,16 +208,16 @@ The `dynamof.conditions` module provides utility methods that make it simple to 
 
 **Example**
 
-```
+```py
 from dynamof.conditions import attr
 
 cond = attr('username').equals('sunshie')
 
 cond.expression
-> username = :username
+# 'username = :username'
 
 cond.attr_values
-> { ":username": { "S": "sunshie" } }
+# { ":username": { "S": "sunshie" } }
 
 ```
 

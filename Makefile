@@ -1,6 +1,6 @@
 
 
-.PHONY: build-distribution
+.PHONY: build-dist
 build-dist:
 	python setup.py sdist
 
