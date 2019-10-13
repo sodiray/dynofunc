@@ -9,13 +9,13 @@ A small :fire: interface for more easily making calls to dynamo using boto. No b
 
 ## Basic Features
 
-- Simplifying `boto3` function APIs ([see an example](#examples))
+- Simplifying `boto3` function APIs ([see an example](#example-create-a-table-in-dynamo))
 > If you've ever used boto3 directly before you know the pain that can exist trying to write a dynamic `KeyCondition` or `ConditionExpression`. `dynamof` does these things for you.
 
-- Standardizing `boto3` error handling ([see an example](#examples))
+- Standardizing `boto3` error handling ([see an example](#example-catch-errors-from-dynamof))
 > If you've ever used boto3 directly you know that handling errors is the absolute worst... how much time I've spent googling how to catch this error or that error.... and they're all different! `dynamof` wraps the calls to boto3, catches all of its errors in all of their uniquely identifiable ways and exposes a concise error api that works with the standard `try ... except`.
 
-- Customizable api
+- Customizable api ([see an example](#example-create-a-table-in-dynamo))
 > Because doing it how I do it probably isn't for you.
 
 `dynamof` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynamof` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
@@ -71,11 +71,15 @@ db.find(table_name='users', key={ 'id': 21 })
 class Table:
   def __init__(self, table_name):
     client = client('dynamodb', endpoint_url='http://localstack:4569')
-    db = partial(execute, client)
-    self.find = partial(find, table_name)
-    self.update = partial(update, table_name)
-    self.delete = partial(delete, table_name)
-    self.query = partial(query, table_name)
+    self.table_name = table_name
+    self.db = partial(execute, client)
+  def find(*args, **kwargs):
+    return self.db(find(self.table_name, *args, **kwargs))
+  def update(*args, **kwargs):
+    return self.db(update(self.table_name, *args, **kwargs))
+  def delete(*args, **kwargs):
+    return self.db(delete(self.table_name, *args, **kwargs))
+
 
 users = Table('users')
 
@@ -283,14 +287,14 @@ Takes any number of condition expressions and combines them using the _and_ rule
  setup travis
  move builder to `core` module
 - :checkered_flag: `version 1.0.0`
- implement scan
- query support pagination
- query support indexes
- support projection expressions
- support filter expressions   
+- implement scan
+- query support pagination
+- query support indexes
+- support projection expressions
+- support filter expressions   
 - :checkered_flag: `version 1.2.0`
- batch operations
- metadata operations
- update table operation
+- batch operations
+- metadata operations
+- update table operation
 - ...
 - :checkered_flag: `version 2.0.0`
