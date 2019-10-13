@@ -1,6 +1,6 @@
 
 # Dynamof
-A small interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating boto3 dynamo action descriptions easy.
+A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating boto3 dynamo action descriptions easy.
 
 ## Basic Features
 
@@ -100,8 +100,8 @@ If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Bo
 
 # API Documentation
 [dynamof.operations](#operations)  
-[dynamof.exceptions](#exceptions)  
 [dynamof.conditions](#conditions)  
+[dynamof.exceptions](#exceptions)   
 [dynamof.builder](#builder)  
 
 ## Operations
@@ -118,7 +118,7 @@ If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Bo
 | `hash_key` | yes | `str` | The hash key (primary key) for your table | `'user_id'` |
 | `allow_existing` | no | `bool` | Creating a table that already exists will throw an error in boto3. Passing `True` here will ignore that error if its raised and ignore it. | `True` |
 
-#### Limitations
+#### :orange_book: Limitations
 - Cannot specify range key
 - Cannot specify complex hash key (hash key and range key)
 - Cannot specify indexes
@@ -133,7 +133,7 @@ If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Bo
 | `table_name`  | yes  | `str` | The name of the table to find an item in | `'users'` |
 | `key` | yes | `str`\|`dict` | The key (primary key) of the item to find. If a string is passed it is associated with `id` by default. If an object is passed the first key and value are used to find the item | `22` or ```{ 'username': 'sunshie' }``` |
 
-#### Limitations
+#### :orange_book: Limitations
 - Cannot use projection expressions
 - Other boto3 parameters not implemented (`ConsistentRead`, `ReturnConsumedCapacity`)
 
@@ -147,35 +147,122 @@ If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Bo
 | `table_name`  | yes  | `str` | The name of the table to add the item to | `'users'` |
 | `item` | yes | `dict` | The item to be added to the table in key value pairs. If `auto_inc` is not set to true then this dict **must** include a valid key value pair for the table's hash key | ```{ 'username': 'sunshie', 'user_status': 'unleashed' }``` |
 
-#### Limitations
+#### :orange_book: Limitations
 - boto3 parameters not implemented: `ReturnItemCollectionMetrics`, `ReturnConsumedCapacity`, `ReturnValues`
 
-### Known Issues
+#### :closed_book: Known Issues
 - When the table you're trying to add to does not exist the `put_item` function in boto3 does not throw the expected `ClientError` with the table not found code and message. Instead, it throws a bad gateway error. So, when calling `add` you cannot depend on the `TableDoesNotExistException`. In a future version you will be able to use an additonal method to check if the table exists if needed.
 
 
-... more docs to come...
+### update(table_name, key, attributes)
+
+[See boto3 docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)
+
+| Parameter  | Required | Data Type | Description | Example |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| `table_name`  | yes  | `str` | The name of the table to update the item on | `'users'` |
+| `key` | yes | `str`\|`dict` | The key (primary key) of the item to find for updating. If a string is passed it is associated with `id` by default. If an object is passed the first key and value are used to find the item | `22` or ```{ 'username': 'sunshie' }``` |
+| `attributes` | yes | `dict` | The key values patch/set on the record | ```{ 'rank': 23 }``` |
+
+#### :orange_book: Limitations
+- Cannot allow setting parameters for `ReturnValues`, `ReturnConsumedCapacity`, `ReturnItemCollectionMetrics`
 
 
+### delete(table_name, key)
+
+[See boto3 docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)
+
+| Parameter  | Required | Data Type | Description | Example |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| `table_name`  | yes  | `str` | The name of the table to delete the item from | `'users'` |
+| `key` | yes | `str`\|`dict` | The key (primary key) of the item to delete. If a string is passed it is associated with `id` by default. If an object is passed the first key and value are used to find the item | `22` or ```{ 'username': 'sunshie' }``` |
+
+#### :orange_book: Limitations
+- Cannot allow setting parameters for `ReturnValues`, `ReturnConsumedCapacity`, `ReturnItemCollectionMetrics`
+
+
+### query(table_name, conditions)
+
+[See boto3 docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)
+
+| Parameter  | Required | Data Type | Description | Example |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| `table_name`  | yes  | `str` | The name of the table to execute the query on | `'users'` |
+| `conditions ` | yes | `dynamof.conditions.Condition` | This value should be built using the `dynamof.conditions` module. See the docs on that module. | `attr('username').equals('sunshie')` will build a proper Condition to pass. |
+
+#### :orange_book: Limitations
+- Cannot do pagination
+- Cannot set limits
+- Cannot query indexes
+- Cannot allow setting parameters for `ReturnValues`, `ReturnConsumedCapacity`, `ReturnItemCollectionMetrics`
+
+
+## Conditions
+
+The `dynamof.conditions` module provides utility methods that make it simple to generate the complex data object boto3 needs when specifying conditions for querying, scanning, and other operations. Looking at the [docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query) for the query function you'll see `KeyConditionExpression`. This is the parameter this module was created to build.
+
+**Example**
+
+```
+from dynamof.conditions import attr
+
+cond = attr('username').equals('sunshie')
+
+cond.expression
+> username = :username
+
+cond.attr_values
+> { ":username": { "S": "sunshie" } }
+
+```
+
+
+
+### attr(name)
+
+| Parameter  | Required | Data Type | Description | Example |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| `name`  | yes  | `str` | The name of the attribute to begin using on a condition. Could be a column you want to match exactly or if its a number type then it could be a column you want to check for `>` or `<` on | `'username'` |
+
+
+The `attr` function returns a `dynamof.conditions.Attribute` that contains three methods
+
+* `equals(value)`
+* `greater_than(value)`
+* `less_than(value)`
+
+Where value is always the value to use in the conditional comparison you build. 
+
+### cand(*conditions)
+
+Takes any number of condition expressions and combines them using the _and_ rule.
+
+| Parameter  | Required | Data Type | Description | Example |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| `conditions`  | yes  | `*dynamof.conditions.Condition` | Takes any number of `Condition` instances  | `cand(attr('points').less_than(50)` |
 
 
 
 ## Roadmap
 
-- [x] only use client & kill resource
-- [x] testing
-- [x] linter
-- [x] implement query
-- [x] implement response object & destructure response Item tree
-- [x] handle errors
-- [x] documentation   
-**version 1.0.0**
-- [] implement scan
-- [] query support pagination
-- [] query support indexes
-- [] support projection expressions
-- [] support filter expressions   
-**version 1.2.0**
-- [] batch operations
-- [] metadata operations
-- [] update table operation
+- :white_check_mark: only use client & kill resource
+- :white_check_mark: testing
+- :white_check_mark: linter
+- :white_check_mark: implement query
+- :white_check_mark: implement response object & destructure response Item tree
+- :white_check_mark: handle errors
+- :white_check_mark: documentation
+- :x: setup travis
+- :x: move builder to `core` module
+- :checkered_flag: `version 1.0.0`
+- :x: implement scan
+- :x: query support pagination
+- :x: query support indexes
+- :x: support projection expressions
+- :x: support filter expressions   
+- :checkered_flag: `version 1.2.0`
+- :x: batch operations
+- :x: metadata operations
+- :x: update table operation
+- ...
+- :checkered_flag: `version 2.0.0`
