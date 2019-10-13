@@ -5,7 +5,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e8c1e3cf175c007a591a/test_coverage)](https://codeclimate.com/github/rayepps/dynamof/test_coverage)
 ![PyPI - License](https://img.shields.io/pypi/l/dynamof)
 
-A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating boto3 dynamo action descriptions easy.
+A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating the complex objects needed to pass to boto3 quick and easy.
 
 ## Basic Features
 
@@ -34,7 +34,9 @@ First thing to note... `execute(client, some_operation(...))` isn't _sexy_... an
 
 ## Example: Customize the way you call dynamof
 ```py
-# Keep it functional
+##
+## Keep it functional
+##
 
 from functools import partial
 from boto3 import client
@@ -49,16 +51,37 @@ db(create(...))
 db(find(...))
 db(update(...))
 
-# Make it a class
+##
+## Make it a class
+##
 
 class DB:
   def __init__(self):
     self.client = client('dynamodb', endpoint_url='http://localstack:4569')
   def find(*args, **kwargs):
-    return execute(client, find(*args, **kwargs))
+    return execute(self.client, find(*args, **kwargs))
 
 db = DB()
-db.find(key={ 'id': 21 })
+db.find(table_name='users', key={ 'id': 21 })
+
+##
+## Make it a table specific class
+##
+
+class Table:
+  def __init__(self, table_name):
+    client = client('dynamodb', endpoint_url='http://localstack:4569')
+    db = partial(execute, client)
+    self.find = partial(find, table_name)
+    self.update = partial(update, table_name)
+    self.delete = partial(delete, table_name)
+    self.query = partial(query, table_name)
+
+users = Table('users')
+
+users.find(key={ 'id': 21 })
+users.update(key={ 'id': 21 }, attributes={ 'username': 'new_username_1993_bro' })
+users.delete(key={'id': 21 })
 
 ```
 
