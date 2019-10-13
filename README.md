@@ -1,5 +1,8 @@
 
 # Dynamof
+
+![Travis (.org](https://img.shields.io/travis/rayepps/dynamof)
+
 A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating boto3 dynamo action descriptions easy.
 
 ## Basic Features
@@ -231,7 +234,7 @@ The `attr` function returns a `dynamof.conditions.Attribute` that contains three
 * `greater_than(value)`
 * `less_than(value)`
 
-Where value is always the value to use in the conditional comparison you build. 
+Where value is always the value to use in the conditional comparison you build.
 
 ### cand(*conditions)
 
