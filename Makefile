@@ -16,6 +16,10 @@ test:
 lint:
 	pylint dynamof
 
+.PHONY: check
+check: lint test
+	@echo "🎉 Check passed 👍"
+
 .PHONY: fresh
 fresh:
 	python3 -m venv venv
