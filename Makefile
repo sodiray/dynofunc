@@ -23,6 +23,9 @@ check: lint test
 .PHONY: fresh
 fresh:
 	python3 -m venv venv
+
+.PHONY: install
+install:
 	pip install -r requirements.txt
 
 .PHONY: travis
