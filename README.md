@@ -2,6 +2,8 @@
 # Dynamof
 
 ![Travis (.org](https://img.shields.io/travis/rayepps/dynamof)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e8c1e3cf175c007a591a/test_coverage)](https://codeclimate.com/github/rayepps/dynamof/test_coverage)
+![PyPI - License](https://img.shields.io/pypi/l/dynamof)
 
 A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating boto3 dynamo action descriptions easy.
 
