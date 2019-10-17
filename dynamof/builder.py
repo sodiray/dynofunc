@@ -1,4 +1,5 @@
 import numbers
+from enum import Enum
 
 
 def update_expression(data):
@@ -116,12 +117,29 @@ def value_type_tree(data):
     return tree
 
 def destructure_type_tree(data):
+
     if data is None:
         return None
-    result = {}
-    for key_name, type_obj in data.items():
-        result = {
-            **result,
-            key_name: list(type_obj.values())[0]
-        }
-    return result
+
+    Level = Enum('Props', 'user boto')
+
+    def _destructure(obj, level):
+        if level == Level.boto:
+            type_key = list(obj.keys())[0]
+            value = list(obj.values())[0]
+
+            if type_key == 'M':
+                return _destructure(value, Level.user)
+
+            if type_key == 'L':
+                return [_destructure(el, Level.boto) for el in value]
+
+            return value
+
+        result = {}
+        for k, v in obj.items():
+            result[k] = _destructure(v, Level.boto)
+        return result
+
+
+    return _destructure(data, Level.user)

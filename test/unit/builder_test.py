@@ -119,6 +119,47 @@ def test_destructure_type_tree():
     assert res['id'] == 'aaa'
     assert res['username'] == 'sunshie'
 
+def test_destructure_type_tree_handles_deep_map():
+    res = ab.destructure_type_tree({
+        "id": {
+            "S": "aaa"
+        },
+        "username": {
+            "S": "sunshie"
+        },
+        "data": {
+            "M": {
+                "prop": {
+                    "S": "mine"
+                },
+                "child": {
+                    "M": {
+                        "baby": {
+                            "S": "harold"
+                        }
+                    }
+                },
+                "many": {
+                    "L": [
+                        {
+                            "S": "first"
+                        },
+                        {
+                            "S": "second"
+                        }
+                    ]
+                }
+            }
+        }
+    })
+    assert res['id'] == 'aaa'
+    assert res['username'] == 'sunshie'
+    assert res['data']['prop'] == 'mine'
+    assert res['data']['child']['baby'] == 'harold'
+
+    assert len(res['data']['many']) == 2
+    assert res['data']['many'][0] == 'first'
+
 def test_destructure_type_tree_handles_none():
     res = ab.destructure_type_tree(None)
     assert res is None
