@@ -1,6 +1,6 @@
 import setuptools
 
-VERSION='1.0.0-alpha'
+VERSION='1.0.1-alpha'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -15,7 +15,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/rayepps/dynamof",
     download_url=f'https://github.com/rayepps/dynamof/archive/{VERSION}.tar.gz',
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude="test"),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
