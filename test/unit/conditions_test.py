@@ -20,14 +20,14 @@ def test_attribute_greater_than_condition():
     # rank > :rank
     # { ":rank": { "N": 12 } }
     assert cond.expression == 'rank > :rank'
-    assert cond.attr_values[':rank']['N'] == 12
+    assert cond.attr_values[':rank']['N'] == '12'
 
 def test_attribute_less_than_condition():
     cond = attr('rank').lt(12)
     # rank < :rank
     # { ":rank": { "N": 12 } }
     assert cond.expression == 'rank < :rank'
-    assert cond.attr_values[':rank']['N'] == 12
+    assert cond.attr_values[':rank']['N'] == '12'
 
 def test_and_condition():
     cond_a = attr('username').equals('sunshie')
@@ -38,7 +38,7 @@ def test_and_condition():
     answer = 'username = :username AND rank < :rank'
     assert res.expression == answer
     assert res.attr_values[':username']['S'] == 'sunshie'
-    assert res.attr_values[':rank']['N'] == 12
+    assert res.attr_values[':rank']['N'] == '12'
 
 def test_or_condition():
     cond_a = attr('username').equals('sunshie')
@@ -49,4 +49,4 @@ def test_or_condition():
     answer = 'username = :username OR rank < :rank'
     assert res.expression == answer
     assert res.attr_values[':username']['S'] == 'sunshie'
-    assert res.attr_values[':rank']['N'] == 12
+    assert res.attr_values[':rank']['N'] == '12'

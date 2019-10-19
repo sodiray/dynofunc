@@ -1,6 +1,9 @@
 import pytest
+import json
 from unittest.mock import patch
 from unittest.mock import MagicMock
+
+from test.utils.assertions import assertObjectsEqual
 
 from dynamof import builder as ab
 
@@ -29,10 +32,10 @@ def test_condition_expression_uses_obj():
     })
     assert res == 'myid = :myid'
 
-def test_value_type_tree():
+def test_value_type_tree_handles_none():
+    assert ab.value_type_tree(None) == None
 
-    class BadValue:
-        pass
+def test_value_type_tree():
 
     res = ab.value_type_tree({
         'username': 'rayepps',
@@ -46,9 +49,7 @@ def test_value_type_tree():
             'food': [ 'american', 43 ]
         },
         'danger': 'τoρνoς'.encode('utf-8'),
-        'danger_set': set([ 'τoρνoς'.encode('utf-8') ]),
-        'mixed_danger_set': set([ 'τoρνoς'.encode('utf-8'), 'x', 23 ]),
-        'klass': BadValue()
+        'danger_set': set([ 'τoρνoς'.encode('utf-8') ])
     })
 
     # Assert string type is built
@@ -57,7 +58,7 @@ def test_value_type_tree():
 
     # Assert number type is built
     assert res['user_id'] is not None
-    assert res['user_id']['N'] == 23
+    assert res['user_id']['N'] == '23'
 
     # Assert byte type is built
     assert res['danger'] is not None
@@ -74,15 +75,15 @@ def test_value_type_tree():
 
     # Assert string set type is built
     assert res['friend_ids'] is not None
-    assert 23 in res['friend_ids']['NS']
-    assert 98 in res['friend_ids']['NS']
+    assert '23' in res['friend_ids']['NS']
+    assert '98' in res['friend_ids']['NS']
 
     # Assert list type is built
     assert res['timming'] is not None
     assert res['timming']['L'] is not None
-    assert res['timming']['L'][0]['N'] == 23
-    assert res['timming']['L'][1]['N'] == 56
-    assert res['timming']['L'][2]['N'] == 22
+    assert res['timming']['L'][0]['N'] == '23'
+    assert res['timming']['L'][1]['N'] == '56'
+    assert res['timming']['L'][2]['N'] == '22'
 
     # Assert null type is built
     assert res['position'] is not None
@@ -92,20 +93,12 @@ def test_value_type_tree():
     assert res['extra'] is not None
     assert res['extra']['M'] is not None
     assert res['extra']['M']['food']['L'][0]['S'] == 'american'
-    assert res['extra']['M']['food']['L'][1]['N'] == 43
+    assert res['extra']['M']['food']['L'][1]['N'] == '43'
 
     # Assert set(byte) type is built
     assert res['danger_set'] is not None
     assert 'τoρνoς'.encode('utf-8') in res['danger_set']['BS']
 
-    # Assert set(byte) type is built
-    assert res['mixed_danger_set'] is not None
-    assert 23 in res['mixed_danger_set']['SS']
-    assert 'x' in res['mixed_danger_set']['SS']
-
-    # Assert unknown type (class) gets defaulted to string
-    assert res['klass'] is not None
-    assert res['klass']['S'] is not None
 
 def test_destructure_type_tree():
     res = ab.destructure_type_tree({
@@ -163,3 +156,52 @@ def test_destructure_type_tree_handles_deep_map():
 def test_destructure_type_tree_handles_none():
     res = ab.destructure_type_tree(None)
     assert res is None
+
+def test_destructure_type_tree_matches_expected():
+
+    result = ab.destructure_type_tree({
+        "id": {
+            "S": "aaa"
+        },
+        "username": {
+            "S": "sunshie"
+        },
+        "data": {
+            "M": {
+                "prop": {
+                    "S": "mine"
+                },
+                "child": {
+                    "M": {
+                        "baby": {
+                            "S": "harold"
+                        }
+                    }
+                },
+                "many": {
+                    "L": [
+                        {
+                            "S": "first"
+                        },
+                        {
+                            "S": "second"
+                        }
+                    ]
+                }
+            }
+        }
+    })
+
+    expected = {
+        "id": "aaa",
+        "username": "sunshie",
+        "data": {
+            "prop": "mine",
+            "child": {
+                "baby": "harold"
+            },
+            "many": [ "first", "second" ]
+        }
+    }
+
+    assertObjectsEqual(result, expected)

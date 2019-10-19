@@ -34,7 +34,9 @@ class ConditionNotMetException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        return err is not None and err.response.get('Error', {}).get('Code', '') == 'ConditionalCheckFailedException'
+        if err is not None and hasattr(err, 'response'):
+          return err.response.get('Error', {}).get('Code', '') == 'ConditionalCheckFailedException'
+        return False
 
 class BadGatewayException(DynamofException):
     def __init__(self):
