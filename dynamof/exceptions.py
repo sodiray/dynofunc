@@ -1,5 +1,14 @@
 
-
+def parse(exc):
+    """Takes in an exception and returns the boto
+    `Message, Code` properties if they exist - else `None, None`
+    """
+    if exc is not None and hasattr(exc, 'response') and exc.response is not None:
+      error = exc.response.get('Error', {})
+      code = error.get('Code', None)
+      message = error.get('Message', None)
+      return message, code
+    return None, None
 
 class DynamofException(Exception):
    def __init__(self, message):
@@ -16,8 +25,9 @@ class PreexistingTableException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
+        message, code = parse(err)
         key = 'Cannot create preexisting table'
-        return err.response.get('Error', {}).get('Message') == key
+        return message == key
 
 class TableDoesNotExistException(DynamofException):
     def __init__(self):
@@ -25,8 +35,9 @@ class TableDoesNotExistException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
+        message, code = parse(err)
         key = 'Cannot do operations on a non-existent table'
-        return err.response.get('Error', {}).get('Message') == key
+        return message == key
 
 class ConditionNotMetException(DynamofException):
     def __init__(self):
@@ -34,9 +45,8 @@ class ConditionNotMetException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        if err is not None and hasattr(err, 'response'):
-          return err.response.get('Error', {}).get('Code', '') == 'ConditionalCheckFailedException'
-        return False
+        message, code = parse(err)
+        return code == 'ConditionalCheckFailedException'
 
 class BadGatewayException(DynamofException):
     def __init__(self):
@@ -44,7 +54,8 @@ class BadGatewayException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        return err is not None and err.response.get('Error').get('Message') == 'Bad Gateway'
+        message, code = parse(err)
+        return message == 'Bad Gateway'
 
 class UnknownDatabaseException(DynamofException):
     def __init__(self):
