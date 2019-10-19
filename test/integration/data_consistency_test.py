@@ -42,5 +42,3 @@ def test_numbers_are_not_changed(db):
 
     assert volume == 9
     assert isinstance(volume, int)
-
-    db(delete(table_name='data_const'))

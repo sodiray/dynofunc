@@ -25,7 +25,7 @@ class PreexistingTableException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        message, code = parse(err)
+        message, _ = parse(err)
         key = 'Cannot create preexisting table'
         return message == key
 
@@ -35,7 +35,7 @@ class TableDoesNotExistException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        message, code = parse(err)
+        message, _ = parse(err)
         key = 'Cannot do operations on a non-existent table'
         return message == key
 
@@ -45,7 +45,7 @@ class ConditionNotMetException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        message, code = parse(err)
+        _, code = parse(err)
         return code == 'ConditionalCheckFailedException'
 
 class BadGatewayException(DynamofException):
@@ -54,7 +54,7 @@ class BadGatewayException(DynamofException):
         super().__init__(message)
     @classmethod
     def matches(cls, err):
-        message, code = parse(err)
+        message, _ = parse(err)
         return message == 'Bad Gateway'
 
 class UnknownDatabaseException(DynamofException):

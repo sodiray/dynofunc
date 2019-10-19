@@ -1,5 +1,6 @@
 import pytest
 import json
+import decimal
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
@@ -202,6 +203,24 @@ def test_destructure_type_tree_matches_expected():
             },
             "many": [ "first", "second" ]
         }
+    }
+
+    assertObjectsEqual(result, expected)
+
+def test_deep_strip_Decimals():
+    
+    result = ab.deep_strip_Decimals({
+        'a': decimal.Decimal(30),
+        'b': None,
+        'c': [ decimal.Decimal(30), 'x' ],
+        'd': { 'r': decimal.Decimal(30.30) }
+    })
+
+    expected = {
+        'a': 30,
+        'b': None,
+        'c': [ 30, 'x' ],
+        'd': { 'r': 30.30 }
     }
 
     assertObjectsEqual(result, expected)

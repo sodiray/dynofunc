@@ -1,4 +1,4 @@
-
+import decimal
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 
 
@@ -45,6 +45,23 @@ def provisioned_throughput():
         'WriteCapacityUnits': 1
     }
 
+def deep_strip_Decimals(obj):
+    """Patches an issue with dynamo where it takes in number
+    types but always returns Decimal class type.
+    https://github.com/boto/boto3/issues/369
+    """
+    if isinstance(obj, list):
+        return [deep_strip_Decimals(item) for item in obj]
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            obj[k] = deep_strip_Decimals(v)
+        return obj
+    if isinstance(obj, decimal.Decimal):
+        if obj % 1 == 0:
+            return int(obj)
+        return float(obj)
+    return obj
+
 def value_type_tree(data):
 
     if data is None:
@@ -70,4 +87,4 @@ def destructure_type_tree(data):
     for key, val in data.items():
         result[key] = d.deserialize(val)
 
-    return result
+    return deep_strip_Decimals(result)
