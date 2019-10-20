@@ -2,7 +2,6 @@ import copy
 import collections
 from dynamof import builder as ab
 from dynamof import runners
-from dynamof.utils import new_id
 
 
 Operation = collections.namedtuple("Operation", [
@@ -24,50 +23,67 @@ def create(table_name, hash_key, allow_existing=False):
 
 
 def find(table_name, key):
+    request = ab.build_request_tree(
+        table_name=table_name,
+        key=key)
     description = dict(
         TableName=table_name,
-        Key=ab.value_type_tree(key)
+        Key=ab.build_key_arg(request)
     )
     return Operation(description, runners.find())
 
 
-def add(table_name, item, auto_inc=False):
+def add(table_name, item, auto_id=None):
     attributes = copy.deepcopy(item)
-    if auto_inc is True:
-        attributes['id'] = new_id()
+    request = ab.build_request_tree(
+        table_name=table_name,
+        attributes=attributes,
+        auto_id=auto_id)
     description = dict(
         TableName=table_name,
-        Item=ab.value_type_tree(attributes),
+        Item=ab.build_expression_attribute_values(request),
         ReturnValues='ALL_OLD'
     )
     return Operation(description, runners.add())
 
 
-def update(table_name, key, attributes):
+def update(table_name, key, attributes, conditions=None):
+    request = ab.build_request_tree(
+        table_name=table_name,
+        key=key,
+        attributes=attributes,
+        conditions=conditions)
     description = dict(
         TableName=table_name,
-        Key=ab.value_type_tree(key),
-        ConditionExpression=ab.condition_expression(key),
-        UpdateExpression=ab.update_expression(attributes),
-        ExpressionAttributeValues=ab.expression_attribute_values({**key, **attributes}),
+        Key=ab.build_key_arg(request),
+        ConditionExpression=ab.build_condition_expression(request),
+        UpdateExpression=ab.build_update_expression(request),
+        ExpressionAttributeNames=ab.build_expression_attribute_names(request),
+        ExpressionAttributeValues=ab.build_expression_attribute_values(request),
         ReturnValues='ALL_NEW'
     )
     return Operation(description, runners.update())
 
 
 def delete(table_name, key):
+    request = ab.build_request_tree(
+        table_name=table_name,
+        key=key)
     description = dict(
         TableName=table_name,
-        Key=ab.value_type_tree(key),
-        ConditionExpression=ab.condition_expression(key),
-        ExpressionAttributeValues=ab.expression_attribute_values(key)
+        Key=ab.build_key_arg(request),
+        ConditionExpression=ab.build_condition_expression(request),
+        ExpressionAttributeValues=ab.build_expression_attribute_values(request)
     )
     return Operation(description, runners.delete())
 
 def query(table_name, conditions):
+    request = ab.build_request_tree(
+        table_name=table_name,
+        conditions=conditions)
     description = dict(
         TableName=table_name,
-        KeyConditionExpression=conditions.expression,
-        ExpressionAttributeValues=conditions.attr_values
+        KeyConditionExpression=ab.build_condition_expression(request),
+        ExpressionAttributeValues=ab.build_expression_attribute_values(request)
     )
     return Operation(description, runners.query())

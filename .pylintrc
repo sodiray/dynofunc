@@ -37,7 +37,8 @@ disable=
     # handled by black
     format,
     redefined-builtin,
-    unnecessary-lambda
+    unnecessary-lambda,
+    too-many-arguments
 
 
 [REPORTS]

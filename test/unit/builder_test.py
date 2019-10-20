@@ -6,32 +6,71 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
+from dynamof import funcs
 from dynamof import builder as ab
+from dynamof.conditions import attr
 
-def test_update_expression():
-    res = ab.update_expression({
-        'owner': 'ray',
-        'status': 'ON'
-    })
-    assert res == 'SET owner = :owner, status = :status'
 
-def test_expression_attribute_values():
-    res = ab.expression_attribute_values({
-        'owner': 'ray',
-        'status': 'ON'
-    })
-    assert res[':owner']['S'] == 'ray'
-    assert res[':status']['S'] == 'ON'
+def test_build_request_tree_basic():
+    result = ab.build_request_tree(
+        table_name='products',
+        key={ 'id': 13 },
+        attributes={
+            'items': [ 'glow', 'dust' ]
+        },
+        conditions=attr('price').gt(10))
 
-def test_condition_expression_uses_primitive():
-    res = ab.condition_expression('abcd13')
-    assert res == 'id = :id'
+    expected_item = {
+      "original": "items",
+      "key": ":items",
+      "value": {
+        ":items": {
+          "L": [
+            { "S": "glow" },
+            { "S": "dust" }
+          ]
+        }
+      },
+      "alias": "#items",
+      "expression": "#items = :items"
+    }
 
-def test_condition_expression_uses_obj():
-    res = ab.condition_expression({
-        'myid': 'abcd13'
-    })
-    assert res == 'myid = :myid'
+    item = result.attributes.values[0]
+
+    assert item.original == expected_item.get('original')
+    assert item.key == expected_item.get('key')
+    assert item.alias == expected_item.get('alias')
+    assert item.expression == expected_item.get('expression')
+
+
+def test_build_request_tree_using_append_funcs():
+    result = ab.build_request_tree(
+        table_name='products',
+        key={ 'id': 13 },
+        attributes={
+            'items': funcs.append('NEW')
+        })
+
+    expected_item = {
+      "original": "items",
+      "key": ":items",
+      "value": {
+        ":items": {
+          "L": [
+            { "S": "NEW" }
+          ]
+        }
+      },
+      "alias": "#items",
+      "expression": "#items = list_append(#items, :items)"
+    }
+
+    item = result.attributes.values[0]
+
+    assert item.original == expected_item.get('original')
+    assert item.key == expected_item.get('key')
+    assert item.alias == expected_item.get('alias')
+    assert item.expression == expected_item.get('expression')
 
 def test_value_type_tree_handles_none():
     assert ab.value_type_tree(None) == None
@@ -99,7 +138,6 @@ def test_value_type_tree():
     # Assert set(byte) type is built
     assert res['danger_set'] is not None
     assert 'τoρνoς'.encode('utf-8') in res['danger_set']['BS']
-
 
 def test_destructure_type_tree():
     res = ab.destructure_type_tree({
@@ -208,7 +246,7 @@ def test_destructure_type_tree_matches_expected():
     assertObjectsEqual(result, expected)
 
 def test_deep_strip_Decimals():
-    
+
     result = ab.deep_strip_Decimals({
         'a': decimal.Decimal(30),
         'b': None,
