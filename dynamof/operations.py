@@ -99,3 +99,10 @@ def query(table_name, conditions):
         'query',
         description,
         runners.query())
+
+def describe(table_name):
+    build = ab.builder('describe', table_name)
+    description = shake(dict(
+        TableName=build(ab.TableName)
+    ))
+    return operation('describe', description, runners.describe())

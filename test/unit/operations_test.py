@@ -11,7 +11,8 @@ from dynamof.operations import (
     add,
     update,
     delete,
-    query
+    query,
+    describe
 )
 
 def test_create_is_operation():
@@ -143,3 +144,10 @@ def test_query_builds_aliased_attr_description():
 
 def test_query_handles_none_condition():
     result = query(table_name='users', conditions=None)
+
+def test_description_builds_correct_description():
+    result = describe(table_name='users')
+    expected = {
+        'TableName': 'users'
+    }
+    assertObjectsEqual(result.description, expected)

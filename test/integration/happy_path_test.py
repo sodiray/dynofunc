@@ -12,7 +12,8 @@ from dynamof.operations import (
     add,
     update,
     delete,
-    query
+    query,
+    describe
 )
 
 def test_happy_path(db):
@@ -21,6 +22,8 @@ def test_happy_path(db):
         'id': 'aaaaaa',
         'username': 'sunshie'
     }))
+
+    db(describe(table_name='users'))
 
     db(find(table_name='users', key={
         'username': 'sunshie'

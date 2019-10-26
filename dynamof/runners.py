@@ -84,3 +84,14 @@ def query():
             raise UnknownDatabaseException()
         return response.query_response(res)
     return run
+
+def describe():
+    def run(client, description):
+        try:
+            res = client.describe_table(**description)
+        except ClientError as err:
+            if BadGatewayException.matches(err): raise BadGatewayException()
+            if TableDoesNotExistException.matches(err): raise TableDoesNotExistException().info(description.get('TableName'))
+            raise UnknownDatabaseException()
+        return response.query_response(res)
+    return run

@@ -17,7 +17,8 @@ from dynamof.runners import (
     add,
     update,
     delete,
-    query
+    query,
+    describe
 )
 
 
@@ -272,4 +273,29 @@ def test_query_raises_unknown_exc():
 
     with pytest.raises(UnknownDatabaseException):
         run = query()
+        res = run(mock_client, {})
+
+##
+## DESCRIBE
+##
+
+def test_describe_success():
+    mock_client = MagicMock()
+    mock_client.describe_table.return_value = {}
+
+    run = describe()
+    res = run(mock_client, {})
+
+    assert res is not None
+
+def test_describe_raises_unknown_exc():
+
+    def mock_describe():
+        raise mock_unknown_exc
+
+    mock_client = MagicMock()
+    mock_client.describe_table = mock_describe
+
+    with pytest.raises(UnknownDatabaseException):
+        run = describe()
         res = run(mock_client, {})
