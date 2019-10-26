@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
-from test.utils.assertions import assertIsOperation
+from test.utils.assertions import assertIsOperation, assertObjectsEqual
 
 from dynamof import conditions as cond
 from dynamof import funcs
@@ -93,3 +93,38 @@ def test_query_is_operation():
         conditions=cond.attr('username').equals('sunshie')
     )
     assertIsOperation(res)
+
+def test_query_builds_basic_description():
+    result = query(
+        table_name='users',
+        conditions=cond.attr('username').equals('sunshie')
+    )
+    expected = {
+        'TableName': 'users',
+        'KeyConditionExpression': 'username = :username',
+        'ExpressionAttributeValues': {
+            ':username': {
+                'S': 'sunshie'
+            }
+        }
+    }
+    assertObjectsEqual(result.description, expected)
+
+def test_query_builds_aliased_attr_description():
+    result = query(
+        table_name='users',
+        conditions=cond.attr('item').equals('carl')
+    )
+    expected = {
+        'TableName': 'users',
+        'KeyConditionExpression': '#item = :item',
+        'ExpressionAttributeNames': {
+            '#item': 'item'
+        },
+        'ExpressionAttributeValues': {
+            ':item': {
+                'S': 'carl'
+            }
+        }
+    }
+    assertObjectsEqual(result.description, expected)

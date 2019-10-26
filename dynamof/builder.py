@@ -142,8 +142,9 @@ def Key(request):
 
     return { 'id': { 'S': 'ab384020' }}
     """
-    key_values = [{ key.get('alias'): key.get('value') } for key in _.get(request, 'attributes.keys')]
-    return merge(key_values)
+    return merge([{
+        key.get('alias'): key.get('value')
+    } for key in _.get(request, 'attributes.keys')])
 
 def ConditionExpression(request):
     """Creates the `ConditionExpression` argument for a boto3 request description.
@@ -178,13 +179,12 @@ def UpdateExpression(request):
     return f'SET {key_expression}'
 
 def ExpressionAttributeNames(request):
-    # --expression-attribute-names '{"#ri": "RelatedItems"}'
     all_attributes = [
         *_.get(request, 'attributes.keys'),
         *_.get(request, 'attributes.values'),
         *_.get(request, 'attributes.conditions')
     ]
-    aliased_attributes = [attr for attr in all_attributes if attr.get('alias') is not None]
+    aliased_attributes = [attr for attr in all_attributes if attr.get('alias')[0] == '#']
     attr_names = {}
     for attr in aliased_attributes:
         attr_names[attr.get('alias')] = attr.get('original')
@@ -192,13 +192,18 @@ def ExpressionAttributeNames(request):
 
 def Item(request):
     return merge([
-        { attr.get('alias'): attr.get('value') } for attr in _.get(request, 'attributes.values')
+        { attr.get('original'): attr.get('value') } for attr in _.get(request, 'attributes.values')
     ])
 
 def ExpressionAttributeValues(request):
-    return merge([
-        attr.get('value') for attr in _.get(request, 'attributes.values')
-    ])
+    all_attributes = [
+        # *_.get(request, 'attributes.keys'),
+        *_.get(request, 'attributes.values'),
+        *_.get(request, 'attributes.conditions')
+    ]
+    return {
+        attr.get('key'): attr.get('value') for attr in all_attributes
+    }
 
 def KeySchema(request):
     return [{

@@ -9,8 +9,6 @@ def destructure_type_tree(data):
     if data is None:
         return None
 
-    d = TypeDeserializer()
-
     # Using `strip_Decimals` here to patch an
     # undesireable behavior with dynamo where
     # it takes in number types but always returns
@@ -18,7 +16,7 @@ def destructure_type_tree(data):
     # https://github.com/boto/boto3/issues/369
 
     return {
-        k: strip_Decimals(s.deserialize(v)) for k, v in data.items()
+        k: strip_Decimals(TypeDeserializer().deserialize(v)) for k, v in data.items()
     }
 
 get_data = lambda type_tree: destructure_type_tree(type_tree)

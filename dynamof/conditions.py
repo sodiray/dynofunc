@@ -19,15 +19,15 @@ Condition = collections.namedtuple("Condition", [
 def cand(*conditions):
     def build(attrs):
         return ' AND '.join([f'({cond.expression(attrs)})' for cond in conditions])
-    values = merge([cond.attributes for cond in conditions])
-    return Condition(build, values)
+    attributes = merge([cond.attributes for cond in conditions])
+    return Condition(build, attributes)
 
 # condition or
 def cor(*conditions):
     def build(attrs):
         return ' OR '.join([f'({cond.expression(attrs)})' for cond in conditions])
-    values = merge([cond.attributes for cond in conditions])
-    return Condition(build, values)
+    attributes = merge([cond.attributes for cond in conditions])
+    return Condition(build, attributes)
 
 
 def attr(name):
