@@ -1,7 +1,9 @@
 import copy
 import collections
-from dynamof import builder as ab
+
+from dynamof.utils import new_id, shake, merge
 from dynamof import runners
+from dynamof import builder as ab
 
 
 Operation = collections.namedtuple("Operation", [
@@ -9,81 +11,77 @@ Operation = collections.namedtuple("Operation", [
     "runner"
 ])
 
-
 def create(table_name, hash_key, allow_existing=False):
-    description = dict(
-        TableName=table_name,
-        KeySchema=ab.key_schema(hash_key),
-        AttributeDefinitions=ab.attribute_definitions([hash_key]),
-        ProvisionedThroughput=ab.provisioned_throughput()
-    )
+    build = ab.builder('create', table_name,
+        hash_key=hash_key)
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        KeySchema=build(ab.KeySchema),
+        AttributeDefinitions=build(ab.AttributeDefinitions),
+        ProvisionedThroughput=build(ab.ProvisionedThroughput)
+    ))
     return Operation(description, runners.create(
         allow_existing=allow_existing
     ))
 
 
 def find(table_name, key):
-    request = ab.build_request_tree(
-        table_name=table_name,
+    build = ab.builder('find', table_name,
         key=key)
-    description = dict(
-        TableName=table_name,
-        Key=ab.build_key_arg(request)
-    )
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        Key=build(ab.Key)
+    ))
     return Operation(description, runners.find())
 
 
 def add(table_name, item, auto_id=None):
-    attributes = copy.deepcopy(item)
-    request = ab.build_request_tree(
-        table_name=table_name,
-        attributes=attributes,
+    build = ab.builder('add', table_name,
+        attributes=item,
         auto_id=auto_id)
-    description = dict(
-        TableName=table_name,
-        Item=ab.build_expression_attribute_values(request),
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        Item=build(ab.Item),
         ReturnValues='ALL_OLD'
-    )
+    ))
     return Operation(description, runners.add())
 
 
 def update(table_name, key, attributes, conditions=None):
-    request = ab.build_request_tree(
-        table_name=table_name,
+    build = ab.builder('update', table_name,
         key=key,
         attributes=attributes,
         conditions=conditions)
-    description = dict(
-        TableName=table_name,
-        Key=ab.build_key_arg(request),
-        ConditionExpression=ab.build_condition_expression(request),
-        UpdateExpression=ab.build_update_expression(request),
-        ExpressionAttributeNames=ab.build_expression_attribute_names(request),
-        ExpressionAttributeValues=ab.build_expression_attribute_values(request),
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        Key=build(ab.Key),
+        ConditionExpression=build(ab.ConditionExpression),
+        UpdateExpression=build(ab.UpdateExpression),
+        ExpressionAttributeNames=build(ab.ExpressionAttributeNames),
+        ExpressionAttributeValues=build(ab.ExpressionAttributeValues),
         ReturnValues='ALL_NEW'
-    )
+    ))
     return Operation(description, runners.update())
 
 
-def delete(table_name, key):
-    request = ab.build_request_tree(
-        table_name=table_name,
-        key=key)
-    description = dict(
-        TableName=table_name,
-        Key=ab.build_key_arg(request),
-        ConditionExpression=ab.build_condition_expression(request),
-        ExpressionAttributeValues=ab.build_expression_attribute_values(request)
-    )
+def delete(table_name, key, conditions=None):
+    build = ab.builder('delete', table_name,
+        key=key,
+        conditions=conditions)
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        Key=build(ab.Key),
+        ConditionExpression=build(ab.ConditionExpression),
+        ExpressionAttributeValues=build(ab.ExpressionAttributeValues)
+    ))
     return Operation(description, runners.delete())
 
 def query(table_name, conditions):
-    request = ab.build_request_tree(
-        table_name=table_name,
+    build = ab.builder('query', table_name,
         conditions=conditions)
-    description = dict(
-        TableName=table_name,
-        KeyConditionExpression=ab.build_condition_expression(request),
-        ExpressionAttributeValues=ab.build_expression_attribute_values(request)
-    )
+    description = shake(dict(
+        TableName=build(ab.TableName),
+        KeyConditionExpression=build(ab.KeyConditionExpression),
+        ExpressionAttributeValues=build(ab.ExpressionAttributeValues)
+    ))
     return Operation(description, runners.query())

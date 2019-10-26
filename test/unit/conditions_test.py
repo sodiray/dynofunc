@@ -10,53 +10,64 @@ from dynamof.conditions import (
 
 def test_attribute_equals_condition():
     cond = attr('username').equals('sunshie')
+    mock_attributes = [
+        {
+            'original': 'username',
+            'key': ':username',
+            'value': { "S": "sunshie" },
+            'alias': 'username',
+            'func': None
+        }
+    ]
+
+
+    result = cond.expression(mock_attributes)
+
     # username = :username
     # { ":username": { "S": "sunshie" } }
-    assert cond.expression == 'username = :username'
-    assert cond.attributes['username'] == 'sunshie'
+    assert result == 'username = :username'
 
-def test_attribute_greater_than_condition():
-    cond = attr('rank').gt(12)
-    # rank > :rank
-    # { ":rank": { "N": 12 } }
-    assert cond.expression == 'rank > :rank'
-    assert cond.attributes['rank'] == 12
+def test_condition_composition():
 
-def test_attribute_less_than_condition():
-    cond = attr('rank').lt(12)
-    # rank < :rank
-    # { ":rank": { "N": 12 } }
-    assert cond.expression == 'rank < :rank'
-    assert cond.attributes['rank'] == 12
+    cond = cand(
+        attr('username').equals('sunshie'),
+        cor(
+            cand(
+                attr('rank').gt(12),
+                attr('rank').lt(20)),
+            cand(
+                attr('kills').gt_or_eq(100),
+                attr('kills').lt_or_eq(1000))))
 
-def test_attribute_less_than_or_equal_condition():
-    cond = attr('rank').lt_or_eq(12)
-    assert cond.expression == 'rank <= :rank'
-    assert cond.attributes['rank'] == 12
+    mock_attributes = [
+        {
+            'original': 'rank',
+            'key': ':rank',
+            'value': { "N": 12 },
+            'alias': 'rank',
+            'func': None
+        },
+        {
+            'original': 'kills',
+            'key': ':kills',
+            'value': { "N": 300 },
+            'alias': 'kills',
+            'func': None
+        },
+        {
+            'original': 'username',
+            'key': ':username',
+            'value': { "S": "sunshie" },
+            'alias': 'username',
+            'func': None
+        }
+    ]
 
-def test_attribute_greater_than_or_equal_condition():
-    cond = attr('rank').gt_or_eq(12)
-    assert cond.expression == 'rank >= :rank'
-    assert cond.attributes['rank'] == 12
+    expected = '(username = :username) AND (((rank > :rank) AND (rank < :rank)) OR ((kills >= :kills) AND (kills <= :kills)))'
 
-def test_and_condition():
-    cond_a = attr('username').equals('sunshie')
-    cond_b = attr('rank').lt(12)
+    result = cond.expression(mock_attributes)
 
-    res = cand(cond_a, cond_b)
+    print('#### result')
+    print(result)
 
-    answer = 'username = :username AND rank < :rank'
-    assert res.expression == answer
-    assert res.attributes['username'] == 'sunshie'
-    assert res.attributes['rank'] == 12
-
-def test_or_condition():
-    cond_a = attr('username').equals('sunshie')
-    cond_b = attr('rank').lt(12)
-
-    res = cor(cond_a, cond_b)
-
-    answer = 'username = :username OR rank < :rank'
-    assert res.expression == answer
-    assert res.attributes['username'] == 'sunshie'
-    assert res.attributes['rank'] == 12
+    assert result == expected

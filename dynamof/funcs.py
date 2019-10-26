@@ -2,8 +2,8 @@
 import collections
 
 Function = collections.namedtuple("Function", [
-    "make_expression",
-    "make_value"
+    "expression",
+    "value"
 ])
 
 
@@ -13,10 +13,12 @@ def append(*values):
     look like...
         UpdateExpression="SET some_attr = list_append(some_attr, :i)"
     """
-    def make_expression(name, key):
+    def expression(attr):
+        name = attr.get('alias')
+        key = attr.get('key')
         return f'{name} = list_append({name}, {key})'
 
-    def make_value():
+    def value():
         return list(values)
 
-    return Function(make_expression, make_value)
+    return Function(expression, value)

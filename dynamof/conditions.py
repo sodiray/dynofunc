@@ -1,5 +1,7 @@
 import collections
 
+from dynamof.utils import merge, find
+
 Attribute = collections.namedtuple("Attribute", [
     "equals",
     "gt",
@@ -15,37 +17,62 @@ Condition = collections.namedtuple("Condition", [
 
 # condition and
 def cand(*conditions):
-    exp = ' AND '.join([cond.expression for cond in conditions])
-    values = collections.ChainMap(*[cond.attributes for cond in conditions])
-    return Condition(exp, values)
+    def build(attrs):
+        return ' AND '.join([f'({cond.expression(attrs)})' for cond in conditions])
+    values = merge([cond.attributes for cond in conditions])
+    return Condition(build, values)
 
 # condition or
 def cor(*conditions):
-    exp = ' OR '.join([cond.expression for cond in conditions])
-    values = collections.ChainMap(*[cond.attributes for cond in conditions])
-    return Condition(exp, values)
+    def build(attrs):
+        return ' OR '.join([f'({cond.expression(attrs)})' for cond in conditions])
+    values = merge([cond.attributes for cond in conditions])
+    return Condition(build, values)
 
 
 def attr(name):
 
+    def find_attr(attrs):
+        return find(attrs, lambda a: a.get('original') == name)
+
     def equals(value):
-        exp = f'{name} = :{name}'
-        return Condition(exp, { name: value })
+        def build(attrs):
+            attr = find_attr(attrs)
+            alias = attr.get('alias')
+            key = attr.get('key')
+            return f'{alias} = {key}'
+        return Condition(build, { name: value })
 
     def greater_than(value):
-        exp = f'{name} > :{name}'
-        return Condition(exp, { name: value })
+        def build(attrs):
+            attr = find_attr(attrs)
+            alias = attr.get('alias')
+            key = attr.get('key')
+            return f'{alias} > {key}'
+        return Condition(build, { name: value })
 
     def less_than(value):
-        exp = f'{name} < :{name}'
-        return Condition(exp, { name: value })
+        def build(attrs):
+            attr = find_attr(attrs)
+            alias = attr.get('alias')
+            key = attr.get('key')
+            return f'{alias} < {key}'
+        return Condition(build, { name: value })
 
     def less_than_or_equal(value):
-        exp = f'{name} <= :{name}'
-        return Condition(exp, { name: value })
+        def build(attrs):
+            attr = find_attr(attrs)
+            alias = attr.get('alias')
+            key = attr.get('key')
+            return f'{alias} <= {key}'
+        return Condition(build, { name: value })
 
     def greater_than_or_equal(value):
-        exp = f'{name} >= :{name}'
-        return Condition(exp, { name: value })
+        def build(attrs):
+            attr = find_attr(attrs)
+            alias = attr.get('alias')
+            key = attr.get('key')
+            return f'{alias} >= {key}'
+        return Condition(build, { name: value })
 
     return Attribute(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal)

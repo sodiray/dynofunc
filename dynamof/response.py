@@ -1,7 +1,27 @@
-from dynamof import builder as ab
+
+from boto3.dynamodb.types import TypeDeserializer
+
+from dynamof.utils import strip_Decimals
 
 
-get_data = lambda type_tree: ab.destructure_type_tree(type_tree)
+def destructure_type_tree(data):
+
+    if data is None:
+        return None
+
+    d = TypeDeserializer()
+
+    # Using `strip_Decimals` here to patch an
+    # undesireable behavior with dynamo where
+    # it takes in number types but always returns
+    # Decimal class type.
+    # https://github.com/boto/boto3/issues/369
+
+    return {
+        k: strip_Decimals(s.deserialize(v)) for k, v in data.items()
+    }
+
+get_data = lambda type_tree: destructure_type_tree(type_tree)
 get_retries = lambda response: response.get('ResponseMetadata', {}).get('RetryAttempts', None)
 get_success = lambda response: response.get('ResponseMetadata', {}).get('HTTPStatusCode', 0) == 200
 get_count = lambda response: response.get('Count', None)

@@ -1,68 +1,80 @@
-import decimal
 import json
 import collections
 import functools as ft
-from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
+from boto3.dynamodb.types import TypeSerializer
+import pydash as _
 
-from dynamof.utils import new_id
+from dynamof.utils import new_id, shake, merge, update
 from dynamof.funcs import Function
 from dynamof.constants import DYNAMO_RESERVED_WORDS
 
 
-ResultTree = collections.namedtuple("ResultTree", [
-    "attributes",
-    "table_name",
-    "conditions"
-])
-
-AttributeGroup = collections.namedtuple("AttributeGroup", [
-    "keys",
-    "values",
-    "conditions"
-])
-
-class Attribute:
-    """Describes an item's key value relationships as it maps to dynamo
-    This is needed because a caller may pass:
-    {
-      'item': [ 'a']
+def request_tree(operation_name, attributes, table_name, hash_key, conditions):
+    return {
+        'operation_name': operation_name,
+        'attributes': attributes,
+        'table_name': table_name,
+        'hash_key': hash_key,
+        'conditions': conditions
     }
-    as an attribute (either key or attribute) but it goes to dynamo as:
-    {
-      ':item': {
-        'L': [
-          { 'S': 'a' }
-        ]
-      }
+
+def attribute_group(keys, values, conditions):
+    return {
+        'keys': keys,
+        'values': values,
+        'conditions': conditions
     }
-    This DTO keeps track of these different changes and mappings so many different
-    functions can have the correct/same refrence to attributes.
-    NOTE: Making a class immutable in python is a pain... so please just don't
-    mutate the items in this class. use `update` instead.
+
+def attribute(original, key, value, alias, func):
     """
-    def __init__(self, original, key, value, alias=None, expression=None):
-        self.original = original        # { 'item': 'a' } => 'item'
-        self.key = key                  # { 'item': 'a' } => ':item'
-        self.value = value              # { 'item': 'a' } => { 'S': 'a' }
-        self.alias = alias              # { 'item': 'a' } => '#item'
-        self.expression = expression    # { 'item': 'a' } => '#item = :item'
-    def update(self, key=None, value=None, alias=None, expression=None):
-        return Attribute(
-            original=self.original,
-            key=key or self.key,
-            value=value or self.value,
-            alias=alias or self.alias,
-            expression=expression or self.expression)
-    def __str__(self):
-        return json.dumps(self.__dict__, indent=2) # pragma: no cover
+    Parameters
+    ----------
+    original : str
+        The orignial name the client passed us for the attribute.
+        Should never change for later references
+
+        Ex. { 'item': 'a' } => 'item'
 
 
+    key : str
+        The key we should use in expressions to refer to the value
+        of this attribute
 
-def build_request_tree(
+        Ex. { 'item': 'a' } => ':item'
+
+    value : dict
+        The typed value of the attribute. NOTE: The attribute name should
+        be stripped out so only the object defining the value/type is stored
+        here. Different operations will use this and some will need to set a
+        custom key so here were only storing the value of the value/type tree
+
+        Ex. { 'item': 'a' } => { 'S': 'a' }
+
+    alias : str
+        The name we should use when refering to the dynamodb _column_. Typically
+        this will be the same as `original`. However, in the case of reserved attr
+        names it will be updated to something dynamodb friendly
+
+        Ex. { 'item': 'a' } => '#item'
+
+    func : Function
+        A func from `dynamof.funcs` that should be called to modify the attr
+    """
+    return {
+        'original': original,
+        'key': key,
+        'value': value,
+        'alias': alias,
+        'func': func
+    }
+
+def builder(
+    operation_name,
     table_name,
     key=None,
     attributes=None,
     conditions=None,
+    hash_key=None,
     auto_id=None):
 
     key = key or {}
@@ -76,143 +88,133 @@ def build_request_tree(
         }
 
     def replace_reserved_key(attr):
-        alias = DYNAMO_RESERVED_WORDS.get(attr.key.upper(), None)
+        alias = DYNAMO_RESERVED_WORDS.get(attr.get('original').upper(), None)
         if alias is not None:
-            return attr.update(alias=alias)
+            return update(attr, alias=alias)
         return attr
 
     def build_key(attr):
-        return attr.update(key=f':{attr.key}')
+        key = attr.get('key')
+        return update(attr, key=f':{key}')
 
-    def build_expression(attr):
-        attr_name = attr.alias or attr.original
-        if isinstance(attr.value, Function):
-            expression = attr.value.make_expression(attr_name, attr.key)
-            value = attr.value.make_value()
-            return attr.update(expression=expression, value=value)
-        expression = f'{attr_name} = {attr.key}'
-        return attr.update(expression=expression)
+    def apply_function_values(attr):
+        value = attr.get('value')
+        if isinstance(value, Function):
+            fn = value
+            return update(attr,
+                func=fn,
+                value=fn.value())
+        return attr
 
     def build_value_type_tree(attr):
-        return attr.update(value=value_type_tree({
-            f'{attr.key}': attr.value
-        }))
+        return update(attr,
+            value=TypeSerializer().serialize(attr.get('value')))
 
     attribute_parsing_pipeline = [
         replace_reserved_key,
         build_key,
-        build_expression,
+        apply_function_values,
         build_value_type_tree
     ]
 
     def pipeline(k, v):
         def caller(data, parser):
             return parser(data)
-        return ft.reduce(caller, attribute_parsing_pipeline, Attribute(k, k, v))
+        return ft.reduce(caller, attribute_parsing_pipeline, attribute(k, k, v, k, None))
 
-    attrs = AttributeGroup(
-        [pipeline(k, v) for k, v in key.items()],
-        [pipeline(k, v) for k, v in attributes.items()],
-        [pipeline(k, v) for k, v in condition_attrs.items()]
+    attrs = attribute_group(
+        keys=[pipeline(k, v) for k, v in key.items()],
+        values=[pipeline(k, v) for k, v in attributes.items()],
+        conditions=[pipeline(k, v) for k, v in condition_attrs.items()]
     )
 
-    return ResultTree(attrs, table_name, conditions)
+    return lambda fn: fn(request_tree(operation_name, attrs, table_name, hash_key, conditions))
 
+def TableName(request):
+    return request.get('table_name')
 
+def Key(request):
+    """Creates the `Key` argument for a boto3 request description.
+    @param request: ResultTree
+    @return dict
 
+    Example:
 
-def build_key_arg(request):
-    key_obj = {}
-    for key_attr in request.attributes.keys:
-        key_obj[key_attr.original] = key_attr.value
-    return key_obj
+    return { 'id': { 'S': 'ab384020' }}
+    """
+    key_values = [{ key.get('alias'): key.get('value') } for key in _.get(request, 'attributes.keys')]
+    return merge(key_values)
 
-def build_condition_expression(request):
-    if request.conditions is None:
+def ConditionExpression(request):
+    """Creates the `ConditionExpression` argument for a boto3 request description.
+    @param request: ResultTree
+    @return dict
+
+    Example:
+
+    return "Price > :limit"
+    """
+    if request.get('conditions') is None:
         return None
-    return request.conditions.expression
+    condition_attrs = _.get(request, 'attributes.conditions')
+    return _.get(request, 'conditions.expression')(condition_attrs)
 
-def build_update_expression(request):
-    key_expressions = [key.expression for key in request.attributes.values]
+def KeyConditionExpression(request):
+    if request.get('conditions') is None:
+        return None
+    condition_attrs = _.get(request, 'attributes.conditions')
+    return _.get(request, 'conditions.expression')(condition_attrs)
+
+def UpdateExpression(request):
+    def expression(attr):
+        fn = attr.get('func')
+        if fn is not None:
+            return fn.expression(attr)
+        alias = attr.get('alias')
+        key = attr.get('key')
+        return f'{alias} = {key}'
+    key_expressions = [expression(key) for key in _.get(request, 'attributes.values')]
     key_expression = ', '.join(key_expressions)
     return f'SET {key_expression}'
 
-def build_expression_attribute_names(request):
+def ExpressionAttributeNames(request):
     # --expression-attribute-names '{"#ri": "RelatedItems"}'
-    all_attributes = [*request.attributes.keys, *request.attributes.values, *request.attributes.conditions]
-    aliased_attributes = [attr for attr in all_attributes if attr.alias is not None]
+    all_attributes = [
+        *_.get(request, 'attributes.keys'),
+        *_.get(request, 'attributes.values'),
+        *_.get(request, 'attributes.conditions')
+    ]
+    aliased_attributes = [attr for attr in all_attributes if attr.get('alias') is not None]
     attr_names = {}
     for attr in aliased_attributes:
-        attr_names[attr.alias] = attr.original
+        attr_names[attr.get('alias')] = attr.get('original')
     return attr_names
 
-def build_expression_attribute_values(request):
-    values = [{ attr.original: attr.value } for attr in request.attributes.values]
-    return dict(collections.ChainMap(*values))
+def Item(request):
+    return merge([
+        { attr.get('alias'): attr.get('value') } for attr in _.get(request, 'attributes.values')
+    ])
 
+def ExpressionAttributeValues(request):
+    return merge([
+        attr.get('value') for attr in _.get(request, 'attributes.values')
+    ])
 
-
-
-
-
-def key_schema(hash_key):
+def KeySchema(request):
     return [{
-        'AttributeName': hash_key,
+        'AttributeName': request.get('hash_key'),
         'KeyType': 'HASH'
     }]
 
-def attribute_definitions(keys):
-    return [{
-        'AttributeName': key,
-        'AttributeType': 'S'
-    } for key in keys]
 
-def provisioned_throughput():
+def AttributeDefinitions(request):
+    return [{
+        'AttributeName': request.get('hash_key'),
+        'AttributeType': 'S'
+    }]
+
+def ProvisionedThroughput(request):
     return {
         'ReadCapacityUnits': 1,
         'WriteCapacityUnits': 1
     }
-
-def deep_strip_Decimals(obj):
-    """Patches an issue with dynamo where it takes in number
-    types but always returns Decimal class type.
-    https://github.com/boto/boto3/issues/369
-    """
-    if isinstance(obj, list):
-        return [deep_strip_Decimals(item) for item in obj]
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            obj[k] = deep_strip_Decimals(v)
-        return obj
-    if isinstance(obj, decimal.Decimal):
-        if obj % 1 == 0:
-            return int(obj)
-        return float(obj)
-    return obj
-
-def value_type_tree(data):
-
-    if data is None:
-        return None
-
-    s = TypeSerializer()
-
-    result = {}
-    for key, val in data.items():
-        result[key] = s.serialize(val)
-
-    return result
-
-def destructure_type_tree(data):
-
-    if data is None:
-        return None
-
-    d = TypeDeserializer()
-
-    result = {}
-
-    for key, val in data.items():
-        result[key] = d.deserialize(val)
-
-    return deep_strip_Decimals(result)
