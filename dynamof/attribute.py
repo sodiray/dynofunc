@@ -1,14 +1,6 @@
 
 from dynamof.core.utils import merge, find, immutable
 
-def attribute(equals, gt, lt, lt_or_eq, gt_or_eq):
-    return immutable({
-        'equals': equals,
-        'gt': gt,
-        'lt': lt,
-        'lt_or_eq': lt_or_eq,
-        'gt_or_eq': gt_or_eq
-    })
 
 def condition(expression, attributes):
     return immutable({
@@ -77,7 +69,13 @@ class Attr:
                 return f'{a.alias} >= {a.key}'
             return condition(build, { name: value })
 
-        return attribute(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal)
+        return immutable({
+            'equals': equals,
+            'gt': greater_than,
+            'lt': less_than,
+            'lt_or_eq': less_than_or_equal,
+            'gt_or_eq': greater_than_or_equal
+        })
 
     @classmethod
     def append(cls, *values):
