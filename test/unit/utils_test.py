@@ -1,3 +1,4 @@
+import json
 import decimal
 
 import pytest
@@ -6,21 +7,21 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof.utils import new_id, update, strip_Decimals
+from dynamof.utils import guid, update, strip_Decimals, immutable
 
-def test_new_id_generates_guid():
-    res = new_id()
+def test_guid_generates_guid():
+    res = guid()
     assert res is not None
     assert isinstance(res, str)
     assert len(res) == 36
 
 def test_update_returns_new_instance():
 
-    original = {
+    original = immutable({
         'alpha': 1,
         'beta': 2,
         'dalet': 4
-    }
+    })
 
     result = update(original)
 
@@ -29,11 +30,11 @@ def test_update_returns_new_instance():
 
 def test_update_returns_with_updates():
 
-    original = {
+    original = immutable({
         'alpha': 1,
         'beta': 2,
         'dalet': 4
-    }
+    })
 
     result = update(original, alpha=10)
 
@@ -42,13 +43,13 @@ def test_update_returns_with_updates():
 
 def test_update_handles_deep_objects():
 
-    original = {
+    original = immutable({
         'alpha': {
             'color': 23
         },
         'beta': 2,
         'dalet': 4
-    }
+    })
 
     result = update(original, alpha={
         'color': 10
@@ -74,3 +75,33 @@ def test_deep_strip_Decimals():
     }
 
     assertObjectsEqual(result, expected)
+
+def test_immutable_raises_when_set():
+    obj = immutable(x=2, y=23)
+
+    with pytest.raises(TypeError):
+        obj['x'] = 5
+
+    with pytest.raises(TypeError):
+        obj.x = 5
+
+    with pytest.raises(TypeError):
+        del obj['x']
+
+    with pytest.raises(TypeError):
+        del obj.x
+
+def test_immutable_none_comparison():
+    obj = immutable(x=2, y=23)
+    isEqual = obj == None
+    assert isEqual is not True
+
+def test_immutable_repr_dumps_json():
+    obj = immutable(x=2, y=23)
+    r = repr(obj)
+    json.loads(r)
+
+def test_immutable_str_dumps_json():
+    obj = immutable(x=2, y=23)
+    s = str(obj)
+    json.loads(s)

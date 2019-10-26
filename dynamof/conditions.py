@@ -37,42 +37,32 @@ def attr(name):
 
     def equals(value):
         def build(attrs):
-            attr = find_attr(attrs)
-            alias = attr.get('alias')
-            key = attr.get('key')
-            return f'{alias} = {key}'
+            a = find_attr(attrs)
+            return f'{a.alias} = {a.key}'
         return Condition(build, { name: value })
 
     def greater_than(value):
         def build(attrs):
-            attr = find_attr(attrs)
-            alias = attr.get('alias')
-            key = attr.get('key')
-            return f'{alias} > {key}'
+            a = find_attr(attrs)
+            return f'{a.alias} > {a.key}'
         return Condition(build, { name: value })
 
     def less_than(value):
         def build(attrs):
-            attr = find_attr(attrs)
-            alias = attr.get('alias')
-            key = attr.get('key')
-            return f'{alias} < {key}'
+            a = find_attr(attrs)
+            return f'{a.alias} < {a.key}'
         return Condition(build, { name: value })
 
     def less_than_or_equal(value):
         def build(attrs):
-            attr = find_attr(attrs)
-            alias = attr.get('alias')
-            key = attr.get('key')
-            return f'{alias} <= {key}'
+            a = find_attr(attrs)
+            return f'{a.alias} <= {a.key}'
         return Condition(build, { name: value })
 
     def greater_than_or_equal(value):
         def build(attrs):
-            attr = find_attr(attrs)
-            alias = attr.get('alias')
-            key = attr.get('key')
-            return f'{alias} >= {key}'
+            a = find_attr(attrs)
+            return f'{a.alias} >= {a.key}'
         return Condition(build, { name: value })
 
     return Attribute(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal)

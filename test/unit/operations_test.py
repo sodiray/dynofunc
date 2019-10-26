@@ -5,6 +5,7 @@ from test.utils.assertions import assertIsOperation, assertObjectsEqual
 
 from dynamof import conditions as cond
 from dynamof import funcs
+from dynamof.utils import immutable
 from dynamof.operations import (
     create,
     find,
@@ -77,6 +78,17 @@ def test_update_creates_description_with_Function():
         })
     assert 'list_append(#roles, :roles)' in res.description['UpdateExpression']
 
+def test_update_with_conditions():
+    res = update(
+        table_name='users',
+        key={ 'username': 'sunshie' },
+        conditions=cond.attr('rank').lt(2),
+        attributes={ 'rank': 10 })
+    condition_expression = res.description['ConditionExpression']
+    assert condition_expression is not None
+    assert condition_expression == '#rank < :rank'
+
+
 def test_delete_is_operation():
     res = delete(table_name='users', key={ 'username': 'sunshie '})
     assertIsOperation(res)
@@ -128,3 +140,6 @@ def test_query_builds_aliased_attr_description():
         }
     }
     assertObjectsEqual(result.description, expected)
+
+def test_query_handles_none_condition():
+    result = query(table_name='users', conditions=None)

@@ -1,18 +1,16 @@
-import copy
-import json
-import collections
 
-from dynamof.utils import new_id, shake, merge
+from dynamof.utils import shake, immutable
 from dynamof import runners
 from dynamof import builder as ab
 
 
-Operation = collections.namedtuple("Operation", [
-    "description",
-    "runner"
-])
+def operation(name, description, runner):
+    return immutable(
+        name=name,
+        description=description,
+        runner=runner)
 
-def create(table_name, hash_key, allow_existing=False, debug=False):
+def create(table_name, hash_key, allow_existing=False):
     build = ab.builder('create', table_name,
         hash_key=hash_key)
     description = shake(dict(
@@ -21,28 +19,28 @@ def create(table_name, hash_key, allow_existing=False, debug=False):
         AttributeDefinitions=build(ab.AttributeDefinitions),
         ProvisionedThroughput=build(ab.ProvisionedThroughput)
     ))
-    if debug is True:
-        print('############\nCREATE\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.create(
-        allow_existing=allow_existing
-    ))
+    return operation(
+        'create',
+        description,
+        runners.create(
+            allow_existing=allow_existing
+        ))
 
 
-def find(table_name, key, debug=False):
+def find(table_name, key):
     build = ab.builder('find', table_name,
         key=key)
     description = shake(dict(
         TableName=build(ab.TableName),
         Key=build(ab.Key)
     ))
-    if debug is True:
-        print('############\nFIND\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.find())
+    return operation(
+        'find',
+        description,
+        runners.find())
 
 
-def add(table_name, item, auto_id=None, debug=False):
+def add(table_name, item, auto_id=None):
     build = ab.builder('add', table_name,
         attributes=item,
         auto_id=auto_id)
@@ -51,13 +49,13 @@ def add(table_name, item, auto_id=None, debug=False):
         Item=build(ab.Item),
         ReturnValues='ALL_OLD'
     ))
-    if debug is True:
-        print('############\nADD\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.add())
+    return operation(
+        'add',
+        description,
+        runners.add())
 
 
-def update(table_name, key, attributes, conditions=None, debug=False):
+def update(table_name, key, attributes, conditions=None):
     build = ab.builder('update', table_name,
         key=key,
         attributes=attributes,
@@ -71,13 +69,12 @@ def update(table_name, key, attributes, conditions=None, debug=False):
         ExpressionAttributeValues=build(ab.ExpressionAttributeValues),
         ReturnValues='ALL_NEW'
     ))
-    if debug is True:
-        print('############\nUPDATE\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.update())
+    return operation(
+        'update',
+        description,
+        runners.update())
 
-
-def delete(table_name, key, conditions=None, debug=False):
+def delete(table_name, key, conditions=None):
     build = ab.builder('delete', table_name,
         key=key,
         conditions=conditions)
@@ -87,12 +84,12 @@ def delete(table_name, key, conditions=None, debug=False):
         ConditionExpression=build(ab.ConditionExpression),
         ExpressionAttributeValues=build(ab.ExpressionAttributeValues)
     ))
-    if debug is True:
-        print('############\nDELETE\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.delete())
+    return operation(
+        'delete',
+        description,
+        runners.delete())
 
-def query(table_name, conditions, debug=False):
+def query(table_name, conditions):
     build = ab.builder('query', table_name,
         conditions=conditions)
     description = shake(dict(
@@ -101,7 +98,7 @@ def query(table_name, conditions, debug=False):
         ExpressionAttributeNames=build(ab.ExpressionAttributeNames),
         ExpressionAttributeValues=build(ab.ExpressionAttributeValues)
     ))
-    if debug is True:
-        print('############\nQUERY\n############')
-        print(json.dumps(description, indent=2))
-    return Operation(description, runners.query())
+    return operation(
+        'query',
+        description,
+        runners.query())

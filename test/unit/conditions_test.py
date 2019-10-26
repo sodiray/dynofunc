@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
+from dynamof.utils import immutable
 from dynamof.conditions import (
     attr,
     cand,
@@ -11,13 +12,13 @@ from dynamof.conditions import (
 def test_attribute_equals_condition():
     cond = attr('username').equals('sunshie')
     mock_attributes = [
-        {
+        immutable({
             'original': 'username',
             'key': ':username',
             'value': { "S": "sunshie" },
             'alias': 'username',
             'func': None
-        }
+        })
     ]
 
 
@@ -40,27 +41,27 @@ def test_condition_composition():
                 attr('kills').lt_or_eq(1000))))
 
     mock_attributes = [
-        {
+        immutable({
             'original': 'rank',
             'key': ':rank',
             'value': { "N": 12 },
             'alias': 'rank',
             'func': None
-        },
-        {
+        }),
+        immutable({
             'original': 'kills',
             'key': ':kills',
             'value': { "N": 300 },
             'alias': 'kills',
             'func': None
-        },
-        {
+        }),
+        immutable({
             'original': 'username',
             'key': ':username',
             'value': { "S": "sunshie" },
             'alias': 'username',
             'func': None
-        }
+        })
     ]
 
     expected = '(username = :username) AND (((rank > :rank) AND (rank < :rank)) OR ((kills >= :kills) AND (kills <= :kills)))'

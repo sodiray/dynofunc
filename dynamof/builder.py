@@ -1,29 +1,26 @@
-import json
-import collections
 import functools as ft
 from boto3.dynamodb.types import TypeSerializer
-import pydash as _
 
-from dynamof.utils import new_id, shake, merge, update
+from dynamof.utils import guid, merge, update, immutable
 from dynamof.funcs import Function
 from dynamof.constants import DYNAMO_RESERVED_WORDS
 
 
 def request_tree(operation_name, attributes, table_name, hash_key, conditions):
-    return {
+    return immutable({
         'operation_name': operation_name,
         'attributes': attributes,
         'table_name': table_name,
         'hash_key': hash_key,
         'conditions': conditions
-    }
+    })
 
 def attribute_group(keys, values, conditions):
-    return {
+    return immutable({
         'keys': keys,
         'values': values,
         'conditions': conditions
-    }
+    })
 
 def attribute(original, key, value, alias, func):
     """
@@ -60,13 +57,13 @@ def attribute(original, key, value, alias, func):
     func : Function
         A func from `dynamof.funcs` that should be called to modify the attr
     """
-    return {
+    return immutable({
         'original': original,
         'key': key,
         'value': value,
         'alias': alias,
         'func': func
-    }
+    })
 
 def builder(
     operation_name,
@@ -84,23 +81,21 @@ def builder(
     if auto_id is not None:
         attributes = {
             **attributes,
-            auto_id: new_id()
+            auto_id: guid()
         }
 
     def replace_reserved_key(attr):
-        alias = DYNAMO_RESERVED_WORDS.get(attr.get('original').upper(), None)
+        alias = DYNAMO_RESERVED_WORDS.get(attr.original.upper(), None)
         if alias is not None:
             return update(attr, alias=alias)
         return attr
 
     def build_key(attr):
-        key = attr.get('key')
-        return update(attr, key=f':{key}')
+        return update(attr, key=f':{attr.key}')
 
     def apply_function_values(attr):
-        value = attr.get('value')
-        if isinstance(value, Function):
-            fn = value
+        if isinstance(attr.value, Function):
+            fn = attr.value
             return update(attr,
                 func=fn,
                 value=fn.value())
@@ -108,7 +103,7 @@ def builder(
 
     def build_value_type_tree(attr):
         return update(attr,
-            value=TypeSerializer().serialize(attr.get('value')))
+            value=TypeSerializer().serialize(attr.value))
 
     attribute_parsing_pipeline = [
         replace_reserved_key,
@@ -118,8 +113,8 @@ def builder(
     ]
 
     def pipeline(k, v):
-        def caller(data, parser):
-            return parser(data)
+        def caller(attr, parser):
+            return parser(attr)
         return ft.reduce(caller, attribute_parsing_pipeline, attribute(k, k, v, k, None))
 
     attrs = attribute_group(
@@ -131,7 +126,7 @@ def builder(
     return lambda fn: fn(request_tree(operation_name, attrs, table_name, hash_key, conditions))
 
 def TableName(request):
-    return request.get('table_name')
+    return request.table_name
 
 def Key(request):
     """Creates the `Key` argument for a boto3 request description.
@@ -143,8 +138,8 @@ def Key(request):
     return { 'id': { 'S': 'ab384020' }}
     """
     return merge([{
-        key.get('alias'): key.get('value')
-    } for key in _.get(request, 'attributes.keys')])
+        key.alias: key.value
+    } for key in request.attributes.keys])
 
 def ConditionExpression(request):
     """Creates the `ConditionExpression` argument for a boto3 request description.
@@ -155,70 +150,65 @@ def ConditionExpression(request):
 
     return "Price > :limit"
     """
-    if request.get('conditions') is None:
+    if request.conditions is None:
         return None
-    condition_attrs = _.get(request, 'attributes.conditions')
-    return _.get(request, 'conditions.expression')(condition_attrs)
+    return request.conditions.expression(request.attributes.conditions)
 
 def KeyConditionExpression(request):
-    if request.get('conditions') is None:
+    if request.conditions is None:
         return None
-    condition_attrs = _.get(request, 'attributes.conditions')
-    return _.get(request, 'conditions.expression')(condition_attrs)
+    return request.conditions.expression(request.attributes.conditions)
 
 def UpdateExpression(request):
     def expression(attr):
-        fn = attr.get('func')
-        if fn is not None:
-            return fn.expression(attr)
-        alias = attr.get('alias')
-        key = attr.get('key')
-        return f'{alias} = {key}'
-    key_expressions = [expression(key) for key in _.get(request, 'attributes.values')]
+        if attr.func is not None:
+            return attr.func.expression(attr)
+        return f'{attr.alias} = {attr.key}'
+    key_expressions = [expression(key) for key in request.attributes.values]
     key_expression = ', '.join(key_expressions)
     return f'SET {key_expression}'
 
 def ExpressionAttributeNames(request):
     all_attributes = [
-        *_.get(request, 'attributes.keys'),
-        *_.get(request, 'attributes.values'),
-        *_.get(request, 'attributes.conditions')
+        *request.attributes.keys,
+        *request.attributes.values,
+        *request.attributes.conditions
     ]
-    aliased_attributes = [attr for attr in all_attributes if attr.get('alias')[0] == '#']
+    aliased_attributes = [attr for attr in all_attributes if attr.alias[0] == '#']
     attr_names = {}
     for attr in aliased_attributes:
-        attr_names[attr.get('alias')] = attr.get('original')
+        attr_names[attr.alias] = attr.original
     return attr_names
 
 def Item(request):
     return merge([
-        { attr.get('original'): attr.get('value') } for attr in _.get(request, 'attributes.values')
+        { attr.original: attr.value } for attr in request.attributes.values
     ])
 
 def ExpressionAttributeValues(request):
     all_attributes = [
-        # *_.get(request, 'attributes.keys'),
-        *_.get(request, 'attributes.values'),
-        *_.get(request, 'attributes.conditions')
+        # *request.attributes.keys,
+        *request.attributes.values,
+        *request.attributes.conditions
     ]
     return {
-        attr.get('key'): attr.get('value') for attr in all_attributes
+        attr.key: attr.value for attr in all_attributes
     }
 
 def KeySchema(request):
     return [{
-        'AttributeName': request.get('hash_key'),
+        'AttributeName': request.hash_key,
         'KeyType': 'HASH'
     }]
 
 
 def AttributeDefinitions(request):
     return [{
-        'AttributeName': request.get('hash_key'),
+        'AttributeName': request.hash_key,
         'AttributeType': 'S'
     }]
 
-def ProvisionedThroughput(request):
+def ProvisionedThroughput(request): # pylint: disable=unused-argument
     return {
         'ReadCapacityUnits': 1,
         'WriteCapacityUnits': 1

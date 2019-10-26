@@ -4,7 +4,7 @@ from functools import partial
 from boto3 import client
 from botocore.config import Config
 
-from dynamof.executor import execute
+from dynamof import db
 
 
 URL = 'http://localstack:4569'
@@ -13,7 +13,7 @@ client = client('dynamodb', endpoint_url=URL, config=Config(retries={
     'max_attempts': 2
 }))
 
-db_func = partial(execute, client)
+db_func = db(client, debug=True)
 
 @pytest.fixture
 def db():
