@@ -1,8 +1,8 @@
 from boto3.dynamodb.types import TypeSerializer
 
-from dynamof.utils import guid, merge, update, immutable, pipe
+from dynamof.core.utils import guid, merge, update, immutable, pipe
 from dynamof.funcs import Function
-from dynamof.constants import DYNAMO_RESERVED_WORDS
+from dynamof.core.constants import DYNAMO_RESERVED_WORDS
 
 
 def request_tree(operation_name, attributes, table_name, hash_key, conditions):

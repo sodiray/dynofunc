@@ -5,7 +5,7 @@ from test.utils.assertions import assertIsOperation, assertObjectsEqual
 
 from dynamof import conditions as cond
 from dynamof import funcs
-from dynamof.utils import immutable
+from dynamof.core.utils import immutable
 from dynamof.operations import (
     create,
     find,

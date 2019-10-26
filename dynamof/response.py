@@ -1,7 +1,7 @@
 
 from boto3.dynamodb.types import TypeDeserializer
 
-from dynamof.utils import strip_Decimals
+from dynamof.core.utils import strip_Decimals
 
 
 def destructure_type_tree(data):

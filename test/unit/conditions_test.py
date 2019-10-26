@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
-from dynamof.utils import immutable
+from dynamof.core.utils import immutable
 from dynamof.conditions import (
     attr,
     cand,

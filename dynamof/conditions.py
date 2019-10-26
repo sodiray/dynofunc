@@ -1,6 +1,6 @@
 import collections
 
-from dynamof.utils import merge, find
+from dynamof.core.utils import merge, find
 
 Attribute = collections.namedtuple("Attribute", [
     "equals",

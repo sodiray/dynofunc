@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 from test.utils.assertions import assertObjectsEqual
 
 from dynamof import funcs
-from dynamof import builder as ab
+from dynamof.core import builder as ab
 from dynamof.conditions import attr
 
 

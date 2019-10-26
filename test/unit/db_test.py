@@ -1,6 +1,6 @@
 
 import dynamof
-from dynamof.utils import immutable
+from dynamof.core.utils import immutable
 
 
 def test_db_passes_args():

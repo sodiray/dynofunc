@@ -1,7 +1,7 @@
 
-from dynamof.utils import shake, immutable
+from dynamof.core.utils import shake, immutable
 from dynamof import runners
-from dynamof import builder as ab
+from dynamof.core import builder as ab
 
 
 def operation(name, description, runner):
