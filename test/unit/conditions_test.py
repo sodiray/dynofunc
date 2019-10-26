@@ -3,11 +3,7 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 
 from dynamof.core.utils import immutable
-from dynamof.conditions import (
-    attr,
-    cand,
-    cor
-)
+from dynamof.attribute import attr, cand, cor
 
 def test_attribute_equals_condition():
     cond = attr('username').equals('sunshie')
@@ -67,8 +63,5 @@ def test_condition_composition():
     expected = '(username = :username) AND (((rank > :rank) AND (rank < :rank)) OR ((kills >= :kills) AND (kills <= :kills)))'
 
     result = cond.expression(mock_attributes)
-
-    print('#### result')
-    print(result)
 
     assert result == expected

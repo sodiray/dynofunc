@@ -5,8 +5,7 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import funcs
-from dynamof.conditions import attr
+from dynamof import attr
 from dynamof.operations import (
     create,
     find,
@@ -29,7 +28,7 @@ def test_update_list_by_append(db):
     }))
 
     db(update(table_name='funcs', key={'id': 'aaa'}, attributes={
-        'items': funcs.append('D')
+        'items': attr.append('D')
     }))
 
     record = db(find(table_name='funcs', key={

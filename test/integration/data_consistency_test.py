@@ -5,7 +5,6 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof.conditions import attr
 from dynamof.operations import (
     create,
     find,

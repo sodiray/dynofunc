@@ -1,7 +1,6 @@
 from boto3.dynamodb.types import TypeSerializer
 
-from dynamof.core.utils import guid, merge, update, immutable, pipe
-from dynamof.funcs import Function
+from dynamof.core.utils import guid, merge, update, immutable, Immutable, pipe
 from dynamof.core.constants import DYNAMO_RESERVED_WORDS
 
 
@@ -84,7 +83,8 @@ def parse_attr(a_attribute):
         value of the attribute. Here, if the value property is a
         Function we move it to the func property to be used later
         and call it to get the real value"""
-        if isinstance(attr.value, Function):
+        is_function = lambda val: isinstance(val, Immutable) and val.expression is not None and val.value is not None
+        if is_function(attr.value):
             fn = attr.value
             return update(attr,
                 func=fn,

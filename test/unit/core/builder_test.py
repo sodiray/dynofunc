@@ -5,9 +5,8 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof import funcs
 from dynamof.core import builder as ab
-from dynamof.conditions import attr
+from dynamof.attribute import attr
 
 
 def test_builder_creates_data():

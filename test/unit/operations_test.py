@@ -3,8 +3,7 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.utils.assertions import assertIsOperation, assertObjectsEqual
 
-from dynamof import conditions as cond
-from dynamof import funcs
+from dynamof.attribute import attr, cand, cor
 from dynamof.core.utils import immutable
 from dynamof.operations import (
     create,
@@ -74,8 +73,8 @@ def test_update_creates_description_with_Function():
         table_name='users',
         key={ 'username': 'sunshie' },
         attributes={
-            'roles': funcs.append('admin'),
-            'friends': funcs.prepend('rainbo')
+            'roles': attr.append('admin'),
+            'friends': attr.prepend('rainbo')
         })
     assert 'list_append(#roles, :roles)' in res.description['UpdateExpression']
 
@@ -83,7 +82,7 @@ def test_update_with_conditions():
     res = update(
         table_name='users',
         key={ 'username': 'sunshie' },
-        conditions=cond.attr('rank').lt(2),
+        conditions=attr('rank').lt(2),
         attributes={ 'rank': 10 })
     condition_expression = res.description['ConditionExpression']
     assert condition_expression is not None
@@ -103,14 +102,14 @@ def test_delete_creates_description_with_table_name():
 def test_query_is_operation():
     res = query(
         table_name='users',
-        conditions=cond.attr('username').equals('sunshie')
+        conditions=attr('username').equals('sunshie')
     )
     assertIsOperation(res)
 
 def test_query_builds_basic_description():
     result = query(
         table_name='users',
-        conditions=cond.attr('username').equals('sunshie')
+        conditions=attr('username').equals('sunshie')
     )
     expected = {
         'TableName': 'users',
@@ -126,7 +125,7 @@ def test_query_builds_basic_description():
 def test_query_builds_aliased_attr_description():
     result = query(
         table_name='users',
-        conditions=cond.attr('item').equals('carl')
+        conditions=attr('item').equals('carl')
     )
     expected = {
         'TableName': 'users',
