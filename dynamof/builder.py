@@ -1,4 +1,3 @@
-import functools as ft
 from boto3.dynamodb.types import TypeSerializer
 
 from dynamof.utils import guid, merge, update, immutable
@@ -65,6 +64,57 @@ def attribute(original, key, value, alias, func):
         'func': func
     })
 
+def parse_attr(a_attribute):
+
+    def replace_reserved_key(func):
+        """Finds reserved dynamo keywords in the attribute
+        names and sets an alias the is safe to use instead"""
+        def wrapper(attr):
+            alias = DYNAMO_RESERVED_WORDS.get(attr.original.upper(), None)
+            if alias is not None:
+                return func(update(attr, alias=alias))
+            return func(attr)
+        return wrapper
+
+    def build_key(func):
+        """Builds the key that can be used to reference
+        the attribute's value in an expression"""
+        def wrapper(attr):
+            return func(update(attr, key=f':{attr.key}'))
+        return wrapper
+
+    def apply_function_values(func):
+        """Allows us to support passing a special Function as the
+        value of the attribute. Here, if the value property is a
+        Function we move it to the func property to be used later
+        and call it to get the real value"""
+        def wrapper(attr):
+            if isinstance(attr.value, Function):
+                fn = attr.value
+                return func(update(attr,
+                    func=fn,
+                    value=fn.value()))
+            return func(attr)
+        return wrapper
+
+    def build_value_type_tree(func):
+        """Last step in parsing pipeline, reads the value of the
+        attribute and uses boto's serializer to convert it to that
+        freaky tree with type indicators that dynamo requires"""
+        def wrapper(attr):
+            return func(update(attr,
+                value=TypeSerializer().serialize(attr.value)))
+        return wrapper
+
+    @replace_reserved_key
+    @build_key
+    @apply_function_values
+    @build_value_type_tree
+    def parse(a):
+        return a
+
+    return parse(a_attribute)
+
 def builder(
     operation_name,
     table_name,
@@ -84,43 +134,10 @@ def builder(
             auto_id: guid()
         }
 
-    def replace_reserved_key(attr):
-        alias = DYNAMO_RESERVED_WORDS.get(attr.original.upper(), None)
-        if alias is not None:
-            return update(attr, alias=alias)
-        return attr
-
-    def build_key(attr):
-        return update(attr, key=f':{attr.key}')
-
-    def apply_function_values(attr):
-        if isinstance(attr.value, Function):
-            fn = attr.value
-            return update(attr,
-                func=fn,
-                value=fn.value())
-        return attr
-
-    def build_value_type_tree(attr):
-        return update(attr,
-            value=TypeSerializer().serialize(attr.value))
-
-    attribute_parsing_pipeline = [
-        replace_reserved_key,
-        build_key,
-        apply_function_values,
-        build_value_type_tree
-    ]
-
-    def pipeline(k, v):
-        def caller(attr, parser):
-            return parser(attr)
-        return ft.reduce(caller, attribute_parsing_pipeline, attribute(k, k, v, k, None))
-
     attrs = attribute_group(
-        keys=[pipeline(k, v) for k, v in key.items()],
-        values=[pipeline(k, v) for k, v in attributes.items()],
-        conditions=[pipeline(k, v) for k, v in condition_attrs.items()]
+        keys=[parse_attr(attribute(k, k, v, k, None)) for k, v in key.items()],
+        values=[parse_attr(attribute(k, k, v, k, None)) for k, v in attributes.items()],
+        conditions=[parse_attr(attribute(k, k, v, k, None)) for k, v in condition_attrs.items()]
     )
 
     return lambda fn: fn(request_tree(operation_name, attrs, table_name, hash_key, conditions))
@@ -187,7 +204,6 @@ def Item(request):
 
 def ExpressionAttributeValues(request):
     all_attributes = [
-        # *request.attributes.keys,
         *request.attributes.values,
         *request.attributes.conditions
     ]
