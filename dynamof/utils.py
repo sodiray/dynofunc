@@ -1,6 +1,7 @@
 import uuid
 import json
 import decimal
+import functools
 from collections import ChainMap
 
 
@@ -110,3 +111,11 @@ def immutable(obj=None, **kwargs):
     if obj is not None:
         return Immutable(**obj)
     return Immutable(**kwargs)
+
+def pipe(transform):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(transform(*args, **kwargs))
+        return wrapper
+    return decorator
