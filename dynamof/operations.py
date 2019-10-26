@@ -26,7 +26,6 @@ def create(table_name, hash_key, allow_existing=False):
             allow_existing=allow_existing
         ))
 
-
 def find(table_name, key):
     build = ab.builder('find', table_name,
         key=key)
@@ -38,7 +37,6 @@ def find(table_name, key):
         'find',
         description,
         runners.find())
-
 
 def add(table_name, item, auto_id=None):
     build = ab.builder('add', table_name,
@@ -53,7 +51,6 @@ def add(table_name, item, auto_id=None):
         'add',
         description,
         runners.add())
-
 
 def update(table_name, key, attributes, conditions=None):
     build = ab.builder('update', table_name,

@@ -14,9 +14,17 @@ def append(*values):
         UpdateExpression="SET some_attr = list_append(some_attr, :i)"
     """
     def expression(attr):
-        name = attr.get('alias')
-        key = attr.get('key')
-        return f'{name} = list_append({name}, {key})'
+        return f'{attr.alias} = list_append({attr.alias}, {attr.key})'
+
+    def value():
+        return list(values)
+
+    return Function(expression, value)
+
+def prepend(*values):
+    """Same as append - in reverse"""
+    def expression(attr):
+        return f'{attr.alias} = list_append({attr.key}, {attr.alias})'
 
     def value():
         return list(values)

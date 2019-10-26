@@ -74,7 +74,8 @@ def test_update_creates_description_with_Function():
         table_name='users',
         key={ 'username': 'sunshie' },
         attributes={
-            'roles': funcs.append('admin')
+            'roles': funcs.append('admin'),
+            'friends': funcs.prepend('rainbo')
         })
     assert 'list_append(#roles, :roles)' in res.description['UpdateExpression']
 
