@@ -10,7 +10,7 @@ def operation(name, description, runner):
         description=description,
         runner=runner)
 
-def create(table_name, hash_key, allow_existing=False):
+def create(table_name, hash_key):
     build = ab.builder('create', table_name,
         hash_key=hash_key)
     description = shake(dict(
@@ -22,9 +22,7 @@ def create(table_name, hash_key, allow_existing=False):
     return operation(
         'create',
         description,
-        runners.create(
-            allow_existing=allow_existing
-        ))
+        runners.create)
 
 def find(table_name, key):
     build = ab.builder('find', table_name,
@@ -36,7 +34,7 @@ def find(table_name, key):
     return operation(
         'find',
         description,
-        runners.find())
+        runners.find)
 
 def add(table_name, item, auto_id=None):
     build = ab.builder('add', table_name,
@@ -50,7 +48,7 @@ def add(table_name, item, auto_id=None):
     return operation(
         'add',
         description,
-        runners.add())
+        runners.add)
 
 def update(table_name, key, attributes, conditions=None):
     build = ab.builder('update', table_name,
@@ -69,7 +67,7 @@ def update(table_name, key, attributes, conditions=None):
     return operation(
         'update',
         description,
-        runners.update())
+        runners.update)
 
 def delete(table_name, key, conditions=None):
     build = ab.builder('delete', table_name,
@@ -84,7 +82,7 @@ def delete(table_name, key, conditions=None):
     return operation(
         'delete',
         description,
-        runners.delete())
+        runners.delete)
 
 def query(table_name, conditions):
     build = ab.builder('query', table_name,
@@ -98,11 +96,14 @@ def query(table_name, conditions):
     return operation(
         'query',
         description,
-        runners.query())
+        runners.query)
 
 def describe(table_name):
     build = ab.builder('describe', table_name)
     description = shake(dict(
         TableName=build(ab.TableName)
     ))
-    return operation('describe', description, runners.describe())
+    return operation(
+        'describe',
+        description,
+        runners.describe)

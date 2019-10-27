@@ -2,81 +2,47 @@
 from botocore.exceptions import ClientError
 
 from dynamof import response
-from dynamof.exceptions import (
-    UnknownDatabaseException,
-    PreexistingTableException,
-    ConditionNotMetException,
-    BadGatewayException,
-    TableDoesNotExistException
-)
+from dynamof.exceptions import factory
 
-def run_with_error_handling(func, client, description, **options):
-    try:
-        return func(client, description)
-    except ClientError as err:
-        if BadGatewayException.matches(err): raise BadGatewayException()
-        if TableDoesNotExistException.matches(err): raise TableDoesNotExistException().info(description.get('TableName'))
-        if ConditionNotMetException.matches(err): raise ConditionNotMetException().info(description.get('ConditionExpression'))
-        if PreexistingTableException.matches(err):
-            if options.get('allow_existing', False) is False:
-                table_name = description.get('TableName')
-                raise PreexistingTableException().info(f'table={table_name}')
-            return response.create_response(None, skipped=True)
-        raise UnknownDatabaseException()
+def handle_exceptions(func):
+    def wrapper(client, description):
+        try:
+            return func(client, description)
+        except ClientError as err:
+            raise factory(err)
+    return wrapper
 
-def handle_exceptions(**options):
-    def decorator(func):
-        def wrapper(client, description):
-            return run_with_error_handling(func, client, description, **options)
-        return wrapper
-    return decorator
+@handle_exceptions
+def create(client, description):
+    res = client.create_table(**description)
+    return response.create_response(res)
 
-def create(allow_existing):
+@handle_exceptions
+def find(client, description):
+    res = client.get_item(**description)
+    return response.find_response(res)
 
-    @handle_exceptions(allow_existing=allow_existing)
-    def run(client, description):
-        res = client.create_table(**description)
-        return response.create_response(res)
-    return run
+@handle_exceptions
+def add(client, description):
+    res = client.put_item(**description)
+    return response.add_response(res)
 
-def find():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.get_item(**description)
-        return response.find_response(res)
-    return run
+@handle_exceptions
+def update(client, description):
+    res = client.update_item(**description)
+    return response.update_response(res)
 
-def add():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.put_item(**description)
-        return response.add_response(res)
-    return run
+@handle_exceptions
+def delete(client, description):
+    res = client.delete_item(**description)
+    return response.delete_response(res)
 
-def update():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.update_item(**description)
-        return response.update_response(res)
-    return run
+@handle_exceptions
+def query(client, description):
+    res = client.query(**description)
+    return response.query_response(res)
 
-def delete():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.delete_item(**description)
-        return response.delete_response(res)
-    return run
-
-def query():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.query(**description)
-        return response.query_response(res)
-    return run
-
-def describe():
-    @handle_exceptions()
-    def run(client, description):
-        res = client.describe_table(**description)
-        return response.query_response(res)
-    return run
+@handle_exceptions
+def describe(client, description):
+    res = client.describe_table(**description)
+    return response.query_response(res)

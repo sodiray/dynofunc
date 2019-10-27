@@ -1,4 +1,15 @@
 
+def factory(err):
+    if BadGatewayException.matches(err):
+        raise BadGatewayException()
+    if TableDoesNotExistException.matches(err):
+        raise TableDoesNotExistException()
+    if ConditionNotMetException.matches(err):
+        raise ConditionNotMetException()
+    if PreexistingTableException.matches(err):
+        raise PreexistingTableException()
+    raise UnknownDatabaseException()
+
 def parse(exc):
     """Takes in an exception and returns the boto
     `Message, Code` properties if they exist - else `None, None`
