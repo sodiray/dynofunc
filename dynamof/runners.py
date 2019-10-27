@@ -10,21 +10,24 @@ from dynamof.exceptions import (
     TableDoesNotExistException
 )
 
-def handle_exceptions(allow_existing=False):
+def run_with_error_handling(func, client, description, **options):
+    try:
+        return func(client, description)
+    except ClientError as err:
+        if BadGatewayException.matches(err): raise BadGatewayException()
+        if TableDoesNotExistException.matches(err): raise TableDoesNotExistException().info(description.get('TableName'))
+        if ConditionNotMetException.matches(err): raise ConditionNotMetException().info(description.get('ConditionExpression'))
+        if PreexistingTableException.matches(err):
+            if options.get('allow_existing', False) is False:
+                table_name = description.get('TableName')
+                raise PreexistingTableException().info(f'table={table_name}')
+            return response.create_response(None, skipped=True)
+        raise UnknownDatabaseException()
+
+def handle_exceptions(**options):
     def decorator(func):
         def wrapper(client, description):
-            try:
-                return func(client, description)
-            except ClientError as err:
-                if BadGatewayException.matches(err): raise BadGatewayException()
-                if TableDoesNotExistException.matches(err): raise TableDoesNotExistException().info(description.get('TableName'))
-                if ConditionNotMetException.matches(err): raise ConditionNotMetException().info(description.get('ConditionExpression'))
-                if PreexistingTableException.matches(err):
-                    if allow_existing is False:
-                        table_name = description.get('TableName')
-                        raise PreexistingTableException().info(f'table={table_name}')
-                    return response.create_response(None, skipped=True)
-                raise UnknownDatabaseException()
+            return run_with_error_handling(func, client, description, **options)
         return wrapper
     return decorator
 
