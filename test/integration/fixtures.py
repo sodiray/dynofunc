@@ -13,7 +13,7 @@ client = client('dynamodb', endpoint_url=URL, config=Config(retries={
     'max_attempts': 2
 }))
 
-db_func = db(client, debug=True)
+db_func = db(client)
 
 @pytest.fixture
 def db():

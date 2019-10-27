@@ -1,69 +1,15 @@
 from boto3.dynamodb.types import TypeSerializer
 
-from dynamof.core.utils import guid, merge, update, immutable, Immutable, pipe
-from dynamof.core.constants import DYNAMO_RESERVED_WORDS
+from dynamof.core.utils import guid, merge, update, pipe
+from dynamof.core.model import AttributeGroup, Attribute, RequestTree
+from dynamof.core.dynamo import DYNAMO_RESERVED_WORDS
+from dynamof.core.Immutable import Immutable
 
 
-def request_tree(operation_name, attributes, table_name, hash_key, conditions):
-    return immutable({
-        'operation_name': operation_name,
-        'attributes': attributes,
-        'table_name': table_name,
-        'hash_key': hash_key,
-        'conditions': conditions
-    })
+def parse_attr(key, value):
 
-def attribute_group(keys, values, conditions):
-    return immutable({
-        'keys': keys,
-        'values': values,
-        'conditions': conditions
-    })
-
-def attribute(original, key, value, alias, func):
-    """
-    Parameters
-    ----------
-    original : str
-        The orignial name the client passed us for the attribute.
-        Should never change for later references
-
-        Ex. { 'item': 'a' } => 'item'
-
-
-    key : str
-        The key we should use in expressions to refer to the value
-        of this attribute
-
-        Ex. { 'item': 'a' } => ':item'
-
-    value : dict
-        The typed value of the attribute. NOTE: The attribute name should
-        be stripped out so only the object defining the value/type is stored
-        here. Different operations will use this and some will need to set a
-        custom key so here were only storing the value of the value/type tree
-
-        Ex. { 'item': 'a' } => { 'S': 'a' }
-
-    alias : str
-        The name we should use when refering to the dynamodb _column_. Typically
-        this will be the same as `original`. However, in the case of reserved attr
-        names it will be updated to something dynamodb friendly
-
-        Ex. { 'item': 'a' } => '#item'
-
-    func : Function
-        A func from `dynamof.funcs` that should be called to modify the attr
-    """
-    return immutable({
-        'original': original,
-        'key': key,
-        'value': value,
-        'alias': alias,
-        'func': func
-    })
-
-def parse_attr(a_attribute):
+    def make_attr(k, v):
+        return Attribute(k, k, v, k, None)
 
     def replace_reserved_key(attr):
         """Finds reserved dynamo keywords in the attribute
@@ -98,6 +44,7 @@ def parse_attr(a_attribute):
         return update(attr,
             value=TypeSerializer().serialize(attr.value))
 
+    @pipe(make_attr)
     @pipe(replace_reserved_key)
     @pipe(build_key)
     @pipe(apply_function_values)
@@ -105,10 +52,9 @@ def parse_attr(a_attribute):
     def parse(a):
         return a
 
-    return parse(a_attribute)
+    return parse(key, value)
 
 def builder(
-    operation_name,
     table_name,
     key=None,
     attributes=None,
@@ -126,13 +72,13 @@ def builder(
             auto_id: guid()
         }
 
-    attrs = attribute_group(
-        keys=[parse_attr(attribute(k, k, v, k, None)) for k, v in key.items()],
-        values=[parse_attr(attribute(k, k, v, k, None)) for k, v in attributes.items()],
-        conditions=[parse_attr(attribute(k, k, v, k, None)) for k, v in condition_attrs.items()]
+    attrs = AttributeGroup(
+        keys=[parse_attr(k, v) for k, v in key.items()],
+        values=[parse_attr(k, v) for k, v in attributes.items()],
+        conditions=[parse_attr(k, v) for k, v in condition_attrs.items()]
     )
 
-    return lambda fn: fn(request_tree(operation_name, attrs, table_name, hash_key, conditions))
+    return lambda fn: fn(RequestTree(attrs, table_name, hash_key, conditions))
 
 def TableName(request):
     return request.table_name

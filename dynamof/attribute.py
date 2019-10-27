@@ -1,35 +1,24 @@
 
-from dynamof.core.utils import merge, find, immutable
+from dynamof.core.utils import merge, find
+from dynamof.core.model import Attr, Condition, Function
 
-
-def condition(expression, attributes):
-    return immutable({
-        'expression': expression,
-        'attributes': attributes
-    })
-
-def function(expression, value):
-    return immutable({
-        'expression': expression,
-        'value': value
-    })
 
 # condition and
 def cand(*conditions):
     def build(attrs):
         return ' AND '.join([f'({cond.expression(attrs)})' for cond in conditions])
     attributes = merge([cond.attributes for cond in conditions])
-    return condition(build, attributes)
+    return Condition(build, attributes)
 
 # condition or
 def cor(*conditions):
     def build(attrs):
         return ' OR '.join([f'({cond.expression(attrs)})' for cond in conditions])
     attributes = merge([cond.attributes for cond in conditions])
-    return condition(build, attributes)
+    return Condition(build, attributes)
 
 
-class Attr:
+class AttrFunc:
 
     def __init__(self):
         pass
@@ -43,39 +32,33 @@ class Attr:
             def build(attrs):
                 a = find_attr(attrs)
                 return f'{a.alias} = {a.key}'
-            return condition(build, { name: value })
+            return Condition(build, { name: value })
 
         def greater_than(value):
             def build(attrs):
                 a = find_attr(attrs)
                 return f'{a.alias} > {a.key}'
-            return condition(build, { name: value })
+            return Condition(build, { name: value })
 
         def less_than(value):
             def build(attrs):
                 a = find_attr(attrs)
                 return f'{a.alias} < {a.key}'
-            return condition(build, { name: value })
+            return Condition(build, { name: value })
 
         def less_than_or_equal(value):
             def build(attrs):
                 a = find_attr(attrs)
                 return f'{a.alias} <= {a.key}'
-            return condition(build, { name: value })
+            return Condition(build, { name: value })
 
         def greater_than_or_equal(value):
             def build(attrs):
                 a = find_attr(attrs)
                 return f'{a.alias} >= {a.key}'
-            return condition(build, { name: value })
+            return Condition(build, { name: value })
 
-        return immutable({
-            'equals': equals,
-            'gt': greater_than,
-            'lt': less_than,
-            'lt_or_eq': less_than_or_equal,
-            'gt_or_eq': greater_than_or_equal
-        })
+        return Attr(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal)
 
     @classmethod
     def append(cls, *values):
@@ -90,7 +73,7 @@ class Attr:
         def value():
             return list(values)
 
-        return function(expression, value)
+        return Function(expression, value)
 
     @classmethod
     def prepend(cls, *values):
@@ -101,7 +84,7 @@ class Attr:
         def value():
             return list(values)
 
-        return function(expression, value)
+        return Function(expression, value)
 
 
 # NOTE: Magic here!!!
@@ -116,4 +99,4 @@ class Attr:
 #   condition: attr('sunshie').equals('sunshie')
 #
 
-attr = Attr()
+attr = AttrFunc()

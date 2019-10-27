@@ -5,6 +5,16 @@ def assertIsOperation(op):
     assert hasattr(op, 'description')
     assert hasattr(op, 'runner')
 
+def assertIsResponse(res):
+    assert res is not None
+    assert callable(res.retries)
+    assert callable(res.success)
+    assert callable(res.item)
+    assert callable(res.items)
+    assert callable(res.count)
+    assert callable(res.scanned_count)
+    assert callable(res.raw)
+
 def assertObjectsEqual(obj_a, obj_b):
 
     def _assert(a, b):

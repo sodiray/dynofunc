@@ -1,26 +1,4 @@
 
-def factory(err):
-    if BadGatewayException.matches(err):
-        raise BadGatewayException()
-    if TableDoesNotExistException.matches(err):
-        raise TableDoesNotExistException()
-    if ConditionNotMetException.matches(err):
-        raise ConditionNotMetException()
-    if PreexistingTableException.matches(err):
-        raise PreexistingTableException()
-    raise UnknownDatabaseException()
-
-def parse(exc):
-    """Takes in an exception and returns the boto
-    `Message, Code` properties if they exist - else `None, None`
-    """
-    if exc is not None and hasattr(exc, 'response') and exc.response is not None:
-      error = exc.response.get('Error', {})
-      code = error.get('Code', None)
-      message = error.get('Message', None)
-      return message, code
-    return None, None
-
 class DynamofException(Exception):
    def __init__(self, message):
        self.message = message
@@ -72,3 +50,25 @@ class UnknownDatabaseException(DynamofException):
     def __init__(self):
         message = "An unkonwn exception occured when executing request to dynamo"
         super().__init__(message)
+
+def factory(boto_client_err):
+    if BadGatewayException.matches(boto_client_err):
+        return BadGatewayException()
+    if TableDoesNotExistException.matches(boto_client_err):
+        return TableDoesNotExistException()
+    if ConditionNotMetException.matches(boto_client_err):
+        return ConditionNotMetException()
+    if PreexistingTableException.matches(boto_client_err):
+        return PreexistingTableException()
+    return UnknownDatabaseException()
+
+def parse(exc):
+    """Takes in an exception and returns the boto
+    `Message, Code` properties if they exist - else `None, None`
+    """
+    if exc is not None and hasattr(exc, 'response') and exc.response is not None:
+      error = exc.response.get('Error', {})
+      code = error.get('Code', None)
+      message = error.get('Message', None)
+      return message, code
+    return None, None

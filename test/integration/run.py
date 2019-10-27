@@ -6,8 +6,8 @@ import pytest
 
 from test.integration.fixtures import db_func
 
-from dynamof.exceptions import TableDoesNotExistException
-from dynamof.operations import create, describe
+from dynamof.core.exceptions import TableDoesNotExistException
+from dynamof import create, describe
 
 DATABASE_UPTIME_WAIT = 3 # seconds
 DATABASE_UPTIME_RETRIES = 6 # times
@@ -43,8 +43,7 @@ def setup_test_tables():
     print('####################################')
     db_func(create(
         table_name='users',
-        hash_key='username',
-        allow_existing=True))
+        hash_key='username'))
 
 if __name__ == '__main__':
     wait_for_test_db()

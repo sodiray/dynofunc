@@ -1,9 +1,19 @@
 import json
 
-def execute(client, operation, debug=False):
+from botocore.exceptions import ClientError
+
+from dynamof.core.exceptions import factory
+
+
+def execute(client, operation):
+
     runner = operation.runner
     description = operation.description
-    if debug is True:
-        print(f'############\n{operation.name}\n############')
-        print(json.dumps(description, indent=2))
-    return runner(client, description)
+
+    print(f'############\n  CALLING  \n############')
+    print(json.dumps(description, indent=2))
+
+    try:
+        return runner(client, description)
+    except ClientError as err:
+        raise factory(err)

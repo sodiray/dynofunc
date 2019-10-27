@@ -5,7 +5,7 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof.operations import (
+from dynamof import (
     create,
     find,
     add,
@@ -23,8 +23,7 @@ def test_numbers_are_not_changed(db):
 
     db(create(
         table_name='data_const',
-        hash_key='id',
-        allow_existing=True))
+        hash_key='id'))
 
     db(add(table_name='data_const', item={
         'id': 'aaaaaa',
@@ -37,7 +36,7 @@ def test_numbers_are_not_changed(db):
         'id': 'aaaaaa'
     }))
 
-    volume = user.get('item').get('prefrences').get('volume')
+    volume = user.item().get('prefrences').get('volume')
 
     assert volume == 9
     assert isinstance(volume, int)

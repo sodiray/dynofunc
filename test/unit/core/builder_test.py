@@ -11,7 +11,6 @@ from dynamof.attribute import attr
 
 def test_builder_creates_data():
     build = ab.builder(
-        'query',
         table_name='products',
         key={ 'id': 13 },
         attributes={

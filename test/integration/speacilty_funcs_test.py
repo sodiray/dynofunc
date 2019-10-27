@@ -6,7 +6,7 @@ from boto3 import client
 from test.integration.fixtures import db
 
 from dynamof import attr
-from dynamof.operations import (
+from dynamof import (
     create,
     find,
     add,
@@ -19,8 +19,7 @@ def test_update_list_by_append(db):
 
     db(create(
         table_name='funcs',
-        hash_key='id',
-        allow_existing=True))
+        hash_key='id'))
 
     db(add(table_name='funcs', item={
         'id': 'aaa',
@@ -35,7 +34,7 @@ def test_update_list_by_append(db):
         'id': 'aaa'
     }))
 
-    items = record.get('item').get('items')
+    items = record.item().get('items')
 
     assert isinstance(items, list)
     assert 'D' in items

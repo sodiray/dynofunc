@@ -9,6 +9,7 @@ from test.utils.assertions import assertObjectsEqual
 
 from dynamof.core.utils import guid, update, strip_Decimals, immutable
 
+
 def test_guid_generates_guid():
     res = guid()
     assert res is not None
