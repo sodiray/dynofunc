@@ -7,6 +7,7 @@ from dynamof.operations.describe import describe
 from dynamof.operations.find import find
 from dynamof.operations.query import query
 from dynamof.operations.update import update
+from dynamof.operations.scan import scan
 
 from dynamof.attribute import attr, cand, cor
 

@@ -30,5 +30,6 @@ class MockDynamoClient:
         self.get_item = do_nothing
         self.query = do_nothing
         self.update_item = do_nothing
+        self.scan = do_nothing
 
 mock_dynamo_client = MockDynamoClient()
