@@ -107,3 +107,23 @@ def test_AttributeDefinitions_does_not_duplicate_keys():
     result = [item.get('AttributeName') for item in ab.AttributeDefinitions(mock_request)]
 
     assert len([1 for key in result if key == 'country']) == 1
+
+def test_KeySchema_uses_hash_and_range():
+    mock_request = immutable(
+        hash_key='id',
+        range_key='type')
+
+    expected = [
+        {
+            'AttributeName': 'id',
+            'KeyType': 'HASH'
+        },
+        {
+            'AttributeName': 'type',
+            'KeyType': 'RANGE'
+        }
+    ]
+
+    result = ab.KeySchema(mock_request)
+
+    assertObjectsEqual(result, expected)
