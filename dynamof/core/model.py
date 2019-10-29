@@ -29,10 +29,11 @@ def Function(expression, value):
         'value': value
     })
 
-def RequestTree(attributes, table_name, hash_key, range_key, conditions, gsi, lsi):
+def RequestTree(attributes, table_name, index_name, hash_key, range_key, conditions, gsi, lsi):
     return immutable({
         'attributes': attributes,
         'table_name': table_name,
+        'index_name': index_name,
         'hash_key': hash_key,
         'range_key': range_key,
         'conditions': conditions,

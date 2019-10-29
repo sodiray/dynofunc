@@ -56,6 +56,7 @@ def parse_attr(key, value):
 
 def builder(
     table_name,
+    index_name=None,
     key=None,
     attributes=None,
     conditions=None,
@@ -81,7 +82,7 @@ def builder(
         conditions=[parse_attr(k, v) for k, v in condition_attrs.items()]
     )
 
-    return lambda fn: fn(RequestTree(attrs, table_name, hash_key, range_key, conditions, gsi, lsi))
+    return lambda fn: fn(RequestTree(attrs, table_name, index_name, hash_key, range_key, conditions, gsi, lsi))
 
 def TableName(request):
     return request.table_name
@@ -247,3 +248,6 @@ def GlobalSecondaryIndexes(request):
     return [
         make_index(i) for i in request.gsi
     ]
+
+def IndexName(request):
+    return request.index_name
