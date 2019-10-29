@@ -20,7 +20,7 @@ def table(a_db, table_name):
 
     def wrap_op(op):
         def call_op(*args, **kwargs):
-            a_db(op(table_name, *args, **kwargs))
+            return a_db(op(table_name, *args, **kwargs))
         return call_op
 
     return immutable(
