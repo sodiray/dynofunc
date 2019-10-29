@@ -25,11 +25,14 @@ def assertObjectsEqual(obj_a, obj_b):
     def _check(a, b):
         if a is None or b is None:
             _assert(a, b)
-        for k,v in a.items():
-            if isinstance(v, dict):
-                assertObjectsEqual(v, b[k])
-            else:
-                _assert(v, b[k])
+        elif isinstance(a, list):
+            _assert(a, b)
+        else:
+            for k,v in a.items():
+                if isinstance(v, dict):
+                    assertObjectsEqual(v, b[k])
+                else:
+                    _assert(v, b[k])
 
     # Asserting both directions is more work
     # but it ensures no dangling values on

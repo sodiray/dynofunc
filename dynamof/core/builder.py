@@ -60,7 +60,10 @@ def builder(
     attributes=None,
     conditions=None,
     hash_key=None,
-    auto_id=None):
+    auto_id=None,
+    range_key=None,
+    gsi=None,
+    lsi=None):
 
     key = key or {}
     attributes = attributes or {}
@@ -78,7 +81,7 @@ def builder(
         conditions=[parse_attr(k, v) for k, v in condition_attrs.items()]
     )
 
-    return lambda fn: fn(RequestTree(attrs, table_name, hash_key, conditions))
+    return lambda fn: fn(RequestTree(attrs, table_name, hash_key, range_key, conditions, gsi, lsi))
 
 def TableName(request):
     return request.table_name
@@ -150,20 +153,97 @@ def ExpressionAttributeValues(request):
     }
 
 def KeySchema(request):
-    return [{
-        'AttributeName': request.hash_key,
-        'KeyType': 'HASH'
-    }]
+    schema = [
+        {
+            'AttributeName': request.hash_key,
+            'KeyType': 'HASH'
+        }
+    ]
+    if request.range_key is not None:
+        schema.append({
+            'AttributeName': request.range_key,
+            'KeyType': 'RANGE'
+        })
+    return schema
 
 
 def AttributeDefinitions(request):
+
+    key_sources = [
+        request.hash_key,
+        request.range_key,
+        *[i.get('range_key') for i in request.gsi or []],
+        *[i.get('hash_key') for i in request.gsi or []],
+        *[i.get('range_key') for i in request.lsi or []]
+    ]
+
     return [{
-        'AttributeName': request.hash_key,
+        'AttributeName': key,
         'AttributeType': 'S'
-    }]
+    } for key in set(key_sources) if key is not None]
 
 def ProvisionedThroughput(request): # pylint: disable=unused-argument
     return {
         'ReadCapacityUnits': 1,
         'WriteCapacityUnits': 1
     }
+
+def LocalSecondaryIndexes(request):
+
+    def make_index(lsi):
+        name = lsi.get('name')
+        range_key = lsi.get('range_key', None)
+        return {
+            'IndexName': name,
+            'KeySchema': [
+                {
+                    'AttributeName': request.hash_key,
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': range_key,
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'
+            }
+        }
+
+    if request.lsi is None:
+        return None
+
+    return [
+        make_index(i) for i in request.lsi
+    ]
+
+def GlobalSecondaryIndexes(request):
+
+    def make_index(gsi):
+        name = gsi.get('name')
+        hash_key = gsi.get('hash_key', None)
+        range_key = gsi.get('range_key', None)
+        throughput = gsi.get('throughput', 10)
+        return {
+            'IndexName': name,
+            'KeySchema': [
+                {
+                    'AttributeName': name,
+                    'KeyType': type
+                } for name, type in [[hash_key, 'HASH'], [range_key, 'RANGE']] if name is not None
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'
+            },
+            'ProvisionedThroughput': {
+                'ReadCapacityUnits': throughput,
+                'WriteCapacityUnits': throughput
+            }
+        }
+
+    if request.gsi is None:
+        return None
+
+    return [
+        make_index(i) for i in request.gsi
+    ]

@@ -29,12 +29,15 @@ def Function(expression, value):
         'value': value
     })
 
-def RequestTree(attributes, table_name, hash_key, conditions):
+def RequestTree(attributes, table_name, hash_key, range_key, conditions, gsi, lsi):
     return immutable({
         'attributes': attributes,
         'table_name': table_name,
         'hash_key': hash_key,
-        'conditions': conditions
+        'range_key': range_key,
+        'conditions': conditions,
+        'gsi': gsi,
+        'lsi': lsi
     })
 
 def AttributeGroup(keys, values, conditions):
