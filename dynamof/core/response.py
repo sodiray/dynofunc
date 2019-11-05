@@ -21,6 +21,12 @@ def destructure_type_tree(data):
 
 def response(res):
 
+    def get_items():
+        items = res.get('Items', None)
+        if items is not None and len(items) > 0:
+            return [destructure_type_tree(item) for item in items]
+        return None
+
     return immutable({
 
         'retries': lambda: res.get('ResponseMetadata', {}).get('RetryAttempts', None),
@@ -29,7 +35,7 @@ def response(res):
 
         'item': lambda: destructure_type_tree(res.get('Item', None)),
 
-        'items': lambda: [destructure_type_tree(item) for item in res.get('Items')] if res.get('Items', None) is not None else None,
+        'items': get_items,
 
         'count': lambda: res.get('Count', None),
 
