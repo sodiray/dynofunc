@@ -47,8 +47,9 @@ class BadGatewayException(DynamofException):
         return message == 'Bad Gateway'
 
 class UnknownDatabaseException(DynamofException):
-    def __init__(self):
-        message = "An unkonwn exception occured when executing request to dynamo"
+    def __init__(self, unknown_boto_client_err):
+        message, code = parse(unknown_boto_client_err)
+        message = f'An unkonwn exception occured when executing request to dynamo: {message} - {code}'
         super().__init__(message)
 
 def factory(boto_client_err):
@@ -60,7 +61,7 @@ def factory(boto_client_err):
         return ConditionNotMetException()
     if PreexistingTableException.matches(boto_client_err):
         return PreexistingTableException()
-    return UnknownDatabaseException()
+    return UnknownDatabaseException(boto_client_err)
 
 def parse(exc):
     """Takes in an exception and returns the boto
