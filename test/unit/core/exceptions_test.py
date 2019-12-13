@@ -57,3 +57,17 @@ def test_factory():
 
     exc = factory(None)
     assert isinstance(exc, UnknownDatabaseException)
+
+def test_unknown_exc_logs_message_and_code():
+    mock_err = MagicMock()
+    mock_err.response = {
+        'Error': {
+            'Code': 'XX_CODE_XX',
+            'Message': 'XX_MESSAGE_XX'
+        }
+    }
+
+    exc = factory(mock_err)
+
+    assert 'XX_CODE_XX' in exc.message
+    assert 'XX_MESSAGE_XX' in exc.message
