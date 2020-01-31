@@ -5,7 +5,13 @@ from dynamof.core.model import Operation
 from dynamof.core.response import response
 
 
-def describe(table_name):
+def describe(table_name: str):
+    """Creates an Operation that will describe a table when run.
+
+    Args:
+        table_name (str): The name of the table to describe
+
+    """
     build = ab.builder(
         table_name=table_name)
     description = shake(
