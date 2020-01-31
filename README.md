@@ -15,7 +15,7 @@ A small :fire: interface for more easily making calls to dynamo using boto. No b
 - Standardizing `boto3` error handling ([see an example](#example-catch-errors-from-dynamof))
 > If you've ever used boto3 directly you know that handling errors is the absolute worst... how much time I've spent googling how to catch this error or that error.... and they're all different! `dynamof` wraps the calls to boto3, catches all of its errors, inspects them to determine the specific error it represents, and then throws a concrete and documented exception you can catch with a standard `try...except`.
 
-- Its just a library ([see an example](#example-create-a-table-in-dynamo))
+- Its just a library
 > `dynamof` is not a framework and its not opinionated. `dynamof` is simply a collection of deterministic functions that take in arguments and output boto3 command objects. We also provide a small wrapper for executing those boto3 calls behind the scenes if thats not something you want to do yourself. The benefit, is that you can use raw boto3 calls and `dynamof` calls right next to each other. `dyanmof` doesn't replace boto3, its a simple layer that sits on top to make things easier and more maintainable for you.
 
 `dynamof` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynamof` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
@@ -28,14 +28,14 @@ See the two lists below for what has been implemented and what hasn't. If your a
 
 ## Currently Supported Calls
 
-- :white_check_mark: Create table [[code](dynamof/operations/create.py)] [[docs](#create_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create_table)]
-- :white_check_mark: Describe table [[code](dynamof/operations/describe.py)] [[docs](#describe_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe_table)]
-- :white_check_mark: Add item [[code](dynamof/operations/add.py)] [[docs](#add_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
-- :white_check_mark: Find item [[code](dynamof/operations/find.py)] [[docs](#find_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
-- :white_check_mark: Update item [[code](dynamof/operations/update.py)] [[docs](#update_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
-- :white_check_mark: Delete item [[code](dynamof/operations/delete.py)] [[docs](#delete_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
-- :white_check_mark: Query table [[code](dynamof/operations/query.py)] [[docs](#query_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
-- :white_check_mark: Scan table [[code](dynamof/operations/scan.py)] [[docs](#scan_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
+- :white_check_mark: Create table [[code](dynamof/operations/create.py) | [docs](#create_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create_table)]
+- :white_check_mark: Describe table [[code](dynamof/operations/describe.py) | [docs](#describe_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe_table)]
+- :white_check_mark: Add item [[code](dynamof/operations/add.py) | [docs](#add_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
+- :white_check_mark: Find item [[code](dynamof/operations/find.py) | [docs](#find_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
+- :white_check_mark: Update item [[code](dynamof/operations/update.py) | [docs](#update_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
+- :white_check_mark: Delete item [[code](dynamof/operations/delete.py) | [docs](#delete_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
+- :white_check_mark: Query table [[code](dynamof/operations/query.py) | [docs](#query_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
+- :white_check_mark: Scan table [[code](dynamof/operations/scan.py) | [docs](#scan_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
 
 ## Currently Unsupported Calls
 - :x: `batch_get_item` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.batch_get_item)]
