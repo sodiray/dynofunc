@@ -1,5 +1,6 @@
 
 from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import shake
 from dynamof.core.model import Operation
 from dynamof.core.response import response
@@ -23,12 +24,12 @@ def create(table_name: str, hash_key: str, range_key: str = None, gsi: str = Non
         gsi=gsi,
         lsi=lsi)
     description = shake(
-        TableName=build(ab.TableName),
-        KeySchema=build(ab.KeySchema),
-        AttributeDefinitions=build(ab.AttributeDefinitions),
-        ProvisionedThroughput=build(ab.ProvisionedThroughput),
-        LocalSecondaryIndexes=build(ab.LocalSecondaryIndexes),
-        GlobalSecondaryIndexes=build(ab.GlobalSecondaryIndexes))
+        TableName=build(args.TableName),
+        KeySchema=build(args.KeySchema),
+        AttributeDefinitions=build(args.AttributeDefinitions),
+        ProvisionedThroughput=build(args.ProvisionedThroughput),
+        LocalSecondaryIndexes=build(args.LocalSecondaryIndexes),
+        GlobalSecondaryIndexes=build(args.GlobalSecondaryIndexes))
     return Operation(description, run)
 
 def run(client, description):

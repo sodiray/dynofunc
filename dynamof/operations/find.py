@@ -1,5 +1,6 @@
 
 from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import shake
 from dynamof.core.model import Operation
 from dynamof.core.response import response
@@ -20,8 +21,8 @@ def find(table_name: str, key: dict):
         table_name=table_name,
         key=key)
     description = shake(
-        TableName=build(ab.TableName),
-        Key=build(ab.Key))
+        TableName=build(args.TableName),
+        Key=build(args.Key))
     return Operation(description, run)
 
 def run(client, description):

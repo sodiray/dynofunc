@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import immutable
 
 def test_GlobalSecondaryIndexes_result():
@@ -37,7 +37,7 @@ def test_GlobalSecondaryIndexes_result():
         }
     }]
 
-    result = ab.GlobalSecondaryIndexes(mock_request)
+    result = args.GlobalSecondaryIndexes(mock_request)
 
     assertObjectsEqual(result, expected)
 
@@ -66,7 +66,7 @@ def test_LocalSecondaryIndexes_result():
         }
     }]
 
-    result = ab.LocalSecondaryIndexes(mock_request)
+    result = args.LocalSecondaryIndexes(mock_request)
 
     assertObjectsEqual(result, expected)
 
@@ -86,7 +86,7 @@ def test_AttributeDefinitions_gets_all_keys():
 
     expected = [ 'id', 'type', 'username', 'status', 'country' ]
 
-    result = [item.get('AttributeName') for item in ab.AttributeDefinitions(mock_request)]
+    result = [item.get('AttributeName') for item in args.AttributeDefinitions(mock_request)]
 
     assert set(expected) == set(result)
 
@@ -104,7 +104,7 @@ def test_AttributeDefinitions_does_not_duplicate_keys():
             range_key='status'
         )])
 
-    result = [item.get('AttributeName') for item in ab.AttributeDefinitions(mock_request)]
+    result = [item.get('AttributeName') for item in args.AttributeDefinitions(mock_request)]
 
     assert len([1 for key in result if key == 'country']) == 1
 
@@ -124,6 +124,6 @@ def test_KeySchema_uses_hash_and_range():
         }
     ]
 
-    result = ab.KeySchema(mock_request)
+    result = args.KeySchema(mock_request)
 
     assertObjectsEqual(result, expected)

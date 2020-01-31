@@ -1,5 +1,6 @@
 
 from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import shake
 from dynamof.core.model import Operation, Condition
 from dynamof.core.response import response
@@ -22,11 +23,11 @@ def query(table_name: str, conditions: Condition, index_name: str = None):
         index_name=index_name,
         conditions=conditions)
     description = shake(
-        TableName=build(ab.TableName),
-        IndexName=build(ab.IndexName),
-        KeyConditionExpression=build(ab.KeyConditionExpression),
-        ExpressionAttributeNames=build(ab.ExpressionAttributeNames),
-        ExpressionAttributeValues=build(ab.ExpressionAttributeValues))
+        TableName=build(args.TableName),
+        IndexName=build(args.IndexName),
+        KeyConditionExpression=build(args.KeyConditionExpression),
+        ExpressionAttributeNames=build(args.ExpressionAttributeNames),
+        ExpressionAttributeValues=build(args.ExpressionAttributeValues))
     return Operation(description, run)
 
 def run(client, description):

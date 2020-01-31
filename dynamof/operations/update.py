@@ -1,5 +1,6 @@
 
 from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import shake
 from dynamof.core.model import Operation, Condition
 from dynamof.core.response import response
@@ -31,12 +32,12 @@ def update(table_name: str, key: dict, attributes: dict, conditions: Condition =
         attributes=attributes,
         conditions=conditions)
     description = shake(
-        TableName=build(ab.TableName),
-        Key=build(ab.Key),
-        ConditionExpression=build(ab.ConditionExpression),
-        UpdateExpression=build(ab.UpdateExpression),
-        ExpressionAttributeNames=build(ab.ExpressionAttributeNames),
-        ExpressionAttributeValues=build(ab.ExpressionAttributeValues),
+        TableName=build(args.TableName),
+        Key=build(args.Key),
+        ConditionExpression=build(args.ConditionExpression),
+        UpdateExpression=build(args.UpdateExpression),
+        ExpressionAttributeNames=build(args.ExpressionAttributeNames),
+        ExpressionAttributeValues=build(args.ExpressionAttributeValues),
         ReturnValues='ALL_NEW')
     return Operation(description, run)
 

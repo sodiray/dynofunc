@@ -1,5 +1,6 @@
 
 from dynamof.core import builder as ab
+from dynamof.core import args
 from dynamof.core.utils import shake
 from dynamof.core.model import Operation, Condition
 from dynamof.core.response import response
@@ -24,10 +25,10 @@ def delete(table_name: str, key: dict, conditions: Condition = None):
         key=key,
         conditions=conditions)
     description = shake(
-        TableName=build(ab.TableName),
-        Key=build(ab.Key),
-        ConditionExpression=build(ab.ConditionExpression),
-        ExpressionAttributeValues=build(ab.ExpressionAttributeValues))
+        TableName=build(args.TableName),
+        Key=build(args.Key),
+        ConditionExpression=build(args.ConditionExpression),
+        ExpressionAttributeValues=build(args.ExpressionAttributeValues))
     return Operation(description, run)
 
 def run(client, description):
