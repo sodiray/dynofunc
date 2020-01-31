@@ -92,28 +92,31 @@ execute(client, create(table_name='users', hash_key='username'))
 First thing to note... `execute(client, some_operation(...))` isn't _sexy_... and as engineers _sexy_ is important. Because `dynamof` is a simple functional utility library its very easy to bend it into any api you would like.
 
 ## Example: Customize the way you call dynamof
+### Keep it functional
 ```py
-##
-## Keep it functional
-##
-
 from functools import partial
 from boto3 import client
 from dynamof.executor import execute
 from dynamof.operations import create
+from dynamof.attribute import attr
 
 client = client('dynamodb', endpoint_url='http://localstack:4569')
 db = partial(execute, client)
 
 # Now calling looks like
-db(create(...))
-db(find(...))
-db(update(...))
+db(create(table_name='users', hash_key='username'))
+db(find(table_name='users', key={ 'username': 'sunshie '}))
+db(update(
+  table_name='users',
+  key={ 'username': 'sunshie' },
+  attributes={
+      'roles': attr.append('admin'),
+      'friends': attr.prepend('jake')
+  }))
+```
 
-##
-## Make it a class
-##
-
+### Make it a class
+```py
 class DB:
   def __init__(self):
     self.client = client('dynamodb', endpoint_url='http://localstack:4569')
@@ -122,11 +125,10 @@ class DB:
 
 db = DB()
 db.find(table_name='users', key={ 'id': 21 })
+```
 
-##
-## Make it a table specific class
-##
-
+### Make it a table specific class
+```py
 class Table:
   def __init__(self, table_name):
     client = client('dynamodb', endpoint_url='http://localstack:4569')
@@ -170,10 +172,9 @@ except BadGatewayException:
   # Handle a network error
 except UnknownDatabaseException:
   # Handle an unknown issue
-
 ```
 
-## Example: Use dynamof as sugar to call boto3 yourself
+## Example: Use dynamof to build boto3 arguments but still call boto3 yourself
 ```py
 from dynamof import operations
 from dynamof.conditions import attr
@@ -381,7 +382,7 @@ You can see, this doesn't call dynamo or boto3, its a deterministic/pure functio
 
 ### How it effects tests
 Since the operation functions return an `Operation` we can write concise, full coverage tests by calling the operation function with different arguments and then looking in on the `description` it returned in side the `Operation`. Heres an example:
-```
+```py
 def test_operation_creates_description_with_table_name():
     res = operation_name(table_name='users', key={ 'username': 'sunshie '})
     assert res.description['TableName'] == 'users'
