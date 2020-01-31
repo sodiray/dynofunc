@@ -20,6 +20,9 @@ A small :fire: interface for more easily making calls to dynamo using boto. No b
 
 `dynamof` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynamof` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
 
+## Why Dynamof?
+If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Boto3. Kudos to the people who made Pynamo, its great, but it really doesn't scale well. And your stuck with the ORM features even if you don't want them. Interacting with Boto3 directly is a pain. With things like `KeyCondition`s and `ConditionExpression`s being so difficult to easily grasp you end up duplicating a lot of code in your database/repository/DAL layer. This was my experience. In my early day's I used Pynamo. Once I got tired of trying to bend it to my will at scale I started using Boto3 directly. But... this was still annoying. I wanted a non-opinonated library that could sit on top of Botot3 and do the repetitive, annoying to code work for me. `dynamof` was born.
+
 # Whats Supported?
 See the two lists below for what has been implemented and what hasn't. If your a developer and want to do something thats not done yet its super easy to implement a new operation. See [the developer guide](#developer_guide) for directions.
 
@@ -29,7 +32,7 @@ See the two lists below for what has been implemented and what hasn't. If your a
 - :white_check_mark: Describe table [[code](dynamof/operations/describe.py)] [[docs](#describe_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe_table)]
 - :white_check_mark: Add item [[code](dynamof/operations/add.py)] [[docs](#add_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
 - :white_check_mark: Find item [[code](dynamof/operations/find.py)] [[docs](#find_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
-- :white_check_mark: Update item [[code](dynamof/operations/update.py)] [[docs](#update_item)] [[boto3]([[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)])]
+- :white_check_mark: Update item [[code](dynamof/operations/update.py)] [[docs](#update_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
 - :white_check_mark: Delete item [[code](dynamof/operations/delete.py)] [[docs](#delete_item)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
 - :white_check_mark: Query table [[code](dynamof/operations/query.py)] [[docs](#query_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
 - :white_check_mark: Scan table [[code](dynamof/operations/scan.py)] [[docs](#scan_table)] [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
@@ -73,6 +76,8 @@ See the two lists below for what has been implemented and what hasn't. If your a
 - :x: `update_table_replica_auto_scaling` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_table_replica_auto_scaling)]
 - :x: `update_time_to_live` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_time_to_live)]
 
+
+# Getting Started
 
 ## Example: Create a table in dynamo
 ```py
@@ -181,9 +186,6 @@ query = operations.query(
 result = client.query(**query.description)
 ```
 
-## Why Dynamof?
-If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Boto3. Kudos to the people who made Pynamo, its great, but it really doesn't scale well. And your stuck with the ORM features even if you don't want them. Interacting with Boto3 directly is a pain. With things like `KeyCondition`s and `ConditionExpression`s being so difficult to easily grasp you end up duplicating a lot of code in your database/repository/DAL layer. This was my experience. In my early day's I used Pynamo. Once I got tired of trying to bend it to my will at scale I started using Boto3 directly. But... this was still annoying. I wanted a non-opinonated library that could sit on top of Botot3 and do the repetitive, annoying to code work for me. `dynamof` was born.
-
 # API Documentation
 [dynamof.operations](#operations)  
 [dynamof.conditions](#conditions)  
@@ -193,7 +195,7 @@ If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Bo
 [See the test](test/unit/operations_test.py)  
 
 ### Create Table
-```
+```py
 create(table_name, hash_key, allow_existing=False)
 ```
 
@@ -212,7 +214,7 @@ create(table_name, hash_key, allow_existing=False)
 - Other boto3 parameters not implemented (`BillingMode`, `ProvisionedThroughput`, `StreamSpecification`, `SSESpecification`, `Tags`)
 
 ### Find Item
-```
+```py
 find(table_name, key)
 ```
 
@@ -229,7 +231,7 @@ find(table_name, key)
 
 
 ### Add Item
-```
+```py
 add(table_name, item, auto_inc=False)
 ```
 
@@ -248,7 +250,7 @@ add(table_name, item, auto_inc=False)
 
 
 ### Update Item
-```
+```py
 update(table_name, key, attributes)
 ```
 
@@ -265,7 +267,7 @@ update(table_name, key, attributes)
 
 
 ### Delete Item
-```
+```py
 delete(table_name, key)
 ```
 
@@ -281,7 +283,7 @@ delete(table_name, key)
 
 
 ### Query Table
-```
+```py
 query(table_name, conditions)
 ```
 
@@ -348,7 +350,7 @@ As a developer you can probably guide yourself, you just want to know in simple 
 
 ## The Design
 The goal when `dynamof` was started was to create the complicated objects that boto3 takes in as arguments to its calls. It wasn't until later that a wrapper for executing those calls inside `dynamof` was added so we could standardize wild boto3 exceptions for the client. This means, at the core of `dynamof` is `operations` and `builder` - its that simple. The builder is (for the most part) a DTO (with some sugar) for containg all the arguments you specify for a given operation. If you look in any operation file you'll find the same pattern:
-```
+```py
 def operation_name(table_name, key, conditions=None):
 
     # Build is a function we can use to create boto3 arguments with the details
