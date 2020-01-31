@@ -7,6 +7,9 @@
 
 A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating the complex objects needed to pass to boto3 quick and easy.
 
+## Install
+`pip install dynamof`
+
 ## Basic Features
 
 - Simplifying `boto3` function APIs ([see an example](#example-create-a-table-in-dynamo))
