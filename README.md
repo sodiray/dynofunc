@@ -28,14 +28,14 @@ See the two lists below for what has been implemented and what hasn't. If your a
 
 ## Currently Supported Calls
 
-- :white_check_mark: Create table [[code](dynamof/operations/create.py) | [docs](#create_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create_table)]
-- :white_check_mark: Describe table [[code](dynamof/operations/describe.py) | [docs](#describe_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe_table)]
-- :white_check_mark: Add item [[code](dynamof/operations/add.py) | [docs](#add_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
-- :white_check_mark: Find item [[code](dynamof/operations/find.py) | [docs](#find_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
-- :white_check_mark: Update item [[code](dynamof/operations/update.py) | [docs](#update_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
-- :white_check_mark: Delete item [[code](dynamof/operations/delete.py) | [docs](#delete_item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
-- :white_check_mark: Query table [[code](dynamof/operations/query.py) | [docs](#query_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
-- :white_check_mark: Scan table [[code](dynamof/operations/scan.py) | [docs](#scan_table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
+- :white_check_mark: Create table [[code](dynamof/operations/create.py) | [docs](#create-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create-table)]
+- :white_check_mark: Describe table [[code](dynamof/operations/describe.py) | [docs](#describe-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe-table)]
+- :white_check_mark: Add item [[code](dynamof/operations/add.py) | [docs](#add-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
+- :white_check_mark: Find item [[code](dynamof/operations/find.py) | [docs](#find-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
+- :white_check_mark: Update item [[code](dynamof/operations/update.py) | [docs](#update-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
+- :white_check_mark: Delete item [[code](dynamof/operations/delete.py) | [docs](#delete-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
+- :white_check_mark: Query table [[code](dynamof/operations/query.py) | [docs](#query-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
+- :white_check_mark: Scan table [[code](dynamof/operations/scan.py) | [docs](#scan-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
 
 ## Currently Unsupported Calls
 - :x: `batch_get_item` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.batch_get_item)]
