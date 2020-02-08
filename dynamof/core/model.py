@@ -19,10 +19,12 @@ def Operation(description, runner):
         'runner': runner
     })
 
-def Condition(expression, attributes):
+def Condition(expression, attributes, references=None):
+    references = references or []
     return immutable({
         'expression': expression,
-        'attributes': attributes
+        'attributes': attributes,
+        'references': references
     })
 
 def Function(expression, value):

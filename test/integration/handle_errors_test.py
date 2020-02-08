@@ -27,7 +27,7 @@ from dynamof.core.exceptions import (
 )
 
 def test_add_throws_bad_gateway(db):
-    with pytest.raises(BadGatewayException) as exc:
+    with pytest.raises(TableDoesNotExistException) as exc:
         db(add(
             table_name='does_not_exist_table',
             item={'id': 'aaaaaa'}))

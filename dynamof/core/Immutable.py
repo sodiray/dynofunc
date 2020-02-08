@@ -64,4 +64,6 @@ class Immutable:
         immutable({'a': 2}) == immutable({'a': 2})"""
         if other is None:
             return False
+        if type(other) == dict:
+            return self.dict() == other
         return self.dict() == other.dict()

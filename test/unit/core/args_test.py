@@ -12,8 +12,14 @@ def test_GlobalSecondaryIndexes_result():
     mock_request = immutable(
         gsi=[dict(
             name='gs_index',
-            hash_key='other',
-            range_key='type'
+            hash_key={
+                'name': 'other',
+                'type': 'S'
+            },
+            range_key={
+                'name': 'type',
+                'type': 'S'
+            },
         )])
 
     expected = [{
@@ -43,10 +49,16 @@ def test_GlobalSecondaryIndexes_result():
 
 def test_LocalSecondaryIndexes_result():
     mock_request = immutable(
-        hash_key='main_hash_key',
+        hash_key={
+            'name': 'main_hash_key',
+            'type': 'S'
+        },
         lsi=[dict(
             name='gs_index',
-            range_key='type'
+            range_key={
+                'name': 'type',
+                'type': 'S'
+            },
         )])
 
     expected = [{
@@ -72,16 +84,31 @@ def test_LocalSecondaryIndexes_result():
 
 def test_AttributeDefinitions_gets_all_keys():
     mock_request = immutable(
-        hash_key='id',
-        range_key='country',
+        hash_key={
+            'name': 'id',
+            'type': 'S'
+        },
+        range_key={
+            'name': 'country',
+            'type': 'S'
+        },
         lsi=[dict(
             name='gs_index',
-            range_key='type'
+            range_key={
+                'name': 'type',
+                'type': 'S'
+            },
         )],
         gsi=[dict(
             name='gs_index',
-            hash_key='username',
-            range_key='status'
+            hash_key={
+                'name': 'username',
+                'type': 'S'
+            },
+            range_key={
+                'name': 'status',
+                'type': 'S'
+            }
         )])
 
     expected = [ 'id', 'type', 'username', 'status', 'country' ]
@@ -92,16 +119,31 @@ def test_AttributeDefinitions_gets_all_keys():
 
 def test_AttributeDefinitions_does_not_duplicate_keys():
     mock_request = immutable(
-        hash_key='id',
-        range_key='country',
+        hash_key={
+            'name': 'id',
+            'type': 'S'
+        },
+        range_key={
+            'name': 'contry',
+            'type': 'S'
+        },
         lsi=[dict(
             name='gs_index',
-            range_key='type'
+            range_key={
+                'name': 'type',
+                'type': 'S'
+            }
         )],
         gsi=[dict(
             name='gs_index',
-            hash_key='country',
-            range_key='status'
+            hash_key={
+                'name': 'country',
+                'type': 'S'
+            },
+            range_key={
+                'name': 'status',
+                'type': 'S'
+            }
         )])
 
     result = [item.get('AttributeName') for item in args.AttributeDefinitions(mock_request)]
@@ -110,8 +152,14 @@ def test_AttributeDefinitions_does_not_duplicate_keys():
 
 def test_KeySchema_uses_hash_and_range():
     mock_request = immutable(
-        hash_key='id',
-        range_key='type')
+        hash_key={
+            'name': 'id',
+            'type': 'S'
+        },
+        range_key={
+            'name': 'type',
+            'type': 'S'
+        })
 
     expected = [
         {
@@ -127,3 +175,19 @@ def test_KeySchema_uses_hash_and_range():
     result = args.KeySchema(mock_request)
 
     assertObjectsEqual(result, expected)
+
+def test_ExpressionAttributeNames_appends_references():
+
+    mock_request = immutable(
+        attributes=immutable({
+            'keys': [],
+            'values': [],
+            'conditions': []
+        }),
+        conditions=immutable({
+            'references': [ 'state' ]
+        }))
+
+    result = args.ExpressionAttributeNames(mock_request)
+
+    assert result == { '#state': 'state' }

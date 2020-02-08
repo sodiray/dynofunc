@@ -2,7 +2,8 @@
 boto3 argument"""
 
 from dynamof.core.model import RequestTree
-from dynamof.core.utils import merge
+from dynamof.core.utils import merge, immutable
+from dynamof.core.dynamo import get_safe_alias
 
 
 def TableName(request: RequestTree):
@@ -54,11 +55,17 @@ def ExpressionAttributeNames(request: RequestTree):
         *request.attributes.values,
         *request.attributes.conditions
     ]
+
     aliased_attributes = [attr for attr in all_attributes if attr.alias[0] == '#']
-    attr_names = {}
-    for attr in aliased_attributes:
-        attr_names[attr.alias] = attr.original
-    return attr_names
+
+    if request.conditions is not None and request.conditions.references is not None:
+        for ref in request.conditions.references:
+            aliased_attributes.append(immutable({
+                'alias': get_safe_alias(ref),
+                'original': ref
+            }))
+
+    return { attr.alias: attr.original for attr in aliased_attributes }
 
 def Item(request: RequestTree):
     return merge([
@@ -77,32 +84,40 @@ def ExpressionAttributeValues(request: RequestTree):
 def KeySchema(request: RequestTree):
     schema = [
         {
-            'AttributeName': request.hash_key,
+            'AttributeName': request.hash_key.get('name'),
             'KeyType': 'HASH'
         }
     ]
     if request.range_key is not None:
         schema.append({
-            'AttributeName': request.range_key,
+            'AttributeName': request.range_key.get('name'),
             'KeyType': 'RANGE'
         })
     return schema
 
 
 def AttributeDefinitions(request: RequestTree):
+    '''Finds all the hash keys and range keys in the given
+    request (including indexes) and sets them in the boto
+    standard AttributeDefinitions argument model. Also, looks
+    for type annotations in the key names ('key_name:str' or 'key_name:int'),
+    strips them from the name, and uses them to set the AttributeType.'''
 
-    key_sources = [
+    remove_duplicates = lambda list_of_keys: [dict(t) for t in {tuple(d.items()) for d in list_of_keys}]
+    remove_nones = lambda list_of_keys: [k for k in list_of_keys if k is not None]
+
+    all_keys = remove_duplicates(remove_nones([
         request.hash_key,
         request.range_key,
         *[i.get('range_key') for i in request.gsi or []],
         *[i.get('hash_key') for i in request.gsi or []],
         *[i.get('range_key') for i in request.lsi or []]
-    ]
+    ]))
 
     return [{
-        'AttributeName': key,
-        'AttributeType': 'S'
-    } for key in set(key_sources) if key is not None]
+        'AttributeName': key.get('name'),
+        'AttributeType': key.get('type')
+    } for key in all_keys]
 
 def ProvisionedThroughput(request: RequestTree): # pylint: disable=unused-argument
     return {
@@ -114,12 +129,13 @@ def LocalSecondaryIndexes(request: RequestTree):
 
     def make_index(lsi):
         name = lsi.get('name')
-        range_key = lsi.get('range_key', None)
+        range_key = lsi.get('range_key').get('name')
+        hash_key = request.hash_key.get('name')
         return {
             'IndexName': name,
             'KeySchema': [
                 {
-                    'AttributeName': request.hash_key,
+                    'AttributeName': hash_key,
                     'KeyType': 'HASH'
                 },
                 {
@@ -143,8 +159,8 @@ def GlobalSecondaryIndexes(request: RequestTree):
 
     def make_index(gsi):
         name = gsi.get('name')
-        hash_key = gsi.get('hash_key', None)
-        range_key = gsi.get('range_key', None)
+        hash_key = gsi.get('hash_key').get('name')
+        range_key = gsi.get('range_key', {}).get('name', None)
         throughput = gsi.get('throughput', 10)
         return {
             'IndexName': name,

@@ -1,5 +1,8 @@
 
 
+def get_safe_alias(attr_name):
+    return DYNAMO_RESERVED_WORDS.get(attr_name.upper(), attr_name)
+
 DYNAMO_RESERVED_WORDS = {
     'ABORT': '#abort',
     'ABSOLUTE': '#absolute',

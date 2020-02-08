@@ -33,19 +33,12 @@ def test_attribute_between_adds_attributes():
 def test_attribute_between_condition():
     cond = attr('state').between(4, 9)
     mock_attributes = [
-        immutable({
-            'original': 'state',
-            'key': ':state',
-            'value': { "N": 7 },
-            'alias': 'state',
-            'func': None
-        }),
         *[parse_attr(k, v) for k, v in cond.attributes.items()]
     ]
 
     result = cond.expression(mock_attributes)
 
-    assert result == 'state BETWEEN :state_a AND :state_b'
+    assert result == '#state BETWEEN :state_a AND :state_b'
 
 def test_condition_begins_with():
     cond = attr('state').begins_with('Ca')
