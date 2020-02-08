@@ -71,7 +71,13 @@ class AttrFunc:
                 value_b_key: value_b
             })
 
-        return Attr(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal, between)
+        def begins_with(value):
+            def build(attrs):
+                a = find_attr(attrs)
+                return f'begins_with({a.alias}, {a.key})'
+            return Condition(build, { name: value })
+
+        return Attr(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal, between, begins_with)
 
     @classmethod
     def append(cls, *values):

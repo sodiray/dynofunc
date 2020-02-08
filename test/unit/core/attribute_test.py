@@ -47,6 +47,22 @@ def test_attribute_between_condition():
 
     assert result == 'state BETWEEN :state_a AND :state_b'
 
+def test_condition_begins_with():
+    cond = attr('state').begins_with('Ca')
+    mock_attributes = [
+        immutable({
+            'original': 'state',
+            'key': ':state',
+            'value': { "S": 'California' },
+            'alias': 'state',
+            'func': None
+        })
+    ]
+
+    result = cond.expression(mock_attributes)
+
+    assert result == 'begins_with(state, :state)'
+
 def test_condition_composition():
 
     cond = cand(
