@@ -25,8 +25,8 @@ class AttrFunc:
 
     def __call__(self, name):
 
-        def find_attr(attrs):
-            return find(attrs, lambda a: a.get('original') == name)
+        def find_attr(attrs, original_name=name):
+            return find(attrs, lambda a: a.get('original') == original_name)
 
         def equals(value):
             def build(attrs):
@@ -58,7 +58,20 @@ class AttrFunc:
                 return f'{a.alias} >= {a.key}'
             return Condition(build, { name: value })
 
-        return Attr(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal)
+        def between(value_a, value_b):
+            value_a_key = f'{name}_a'
+            value_b_key = f'{name}_b'
+            def build(attrs):
+                a = find_attr(attrs)
+                value_a_attr = find_attr(attrs, original_name=value_a_key)
+                value_b_attr = find_attr(attrs, original_name=value_b_key)
+                return f'{a.alias} BETWEEN {value_a_attr.key} AND {value_b_attr.key}'
+            return Condition(build, {
+                value_a_key: value_a,
+                value_b_key: value_b
+            })
+
+        return Attr(equals, greater_than, less_than, less_than_or_equal, greater_than_or_equal, between)
 
     @classmethod
     def append(cls, *values):
