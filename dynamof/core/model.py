@@ -2,13 +2,15 @@
 from dynamof.core.utils import immutable
 
 
-def Attr(equals, gt, lt, lt_or_eq, gt_or_eq):
+def Attr(equals, gt, lt, lt_or_eq, gt_or_eq, between, begins_with):
     return immutable({
         'equals': equals,
         'gt': gt,
         'lt': lt,
         'lt_or_eq': lt_or_eq,
-        'gt_or_eq': gt_or_eq
+        'gt_or_eq': gt_or_eq,
+        'between': between,
+        'begins_with': begins_with
     })
 
 def Operation(description, runner):
