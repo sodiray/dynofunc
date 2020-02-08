@@ -17,6 +17,9 @@ def shake(**kwargs):
 def merge(list_of_dicts):
     return dict(ChainMap(*list_of_dicts))
 
+def flatten(list_of_lists):
+    return [item for sublist in list_of_lists for item in sublist]
+
 def strip_Decimals(obj):
 
     if isinstance(obj, list):

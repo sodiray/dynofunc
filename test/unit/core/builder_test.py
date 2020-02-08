@@ -9,6 +9,16 @@ from dynamof.core import builder as ab
 from dynamof.attribute import attr
 
 
+def test_parse_key():
+
+    result = ab.parse_key('uuid:int')
+
+    assert result == {
+        'name': 'uuid',
+        'type': 'N'
+    }
+
+
 def test_builder_creates_data():
     build = ab.builder(
         table_name='products',
@@ -16,26 +26,39 @@ def test_builder_creates_data():
         attributes={
             'items': [ 'glow', 'dust' ]
         },
+        gsi=[{
+            'name': 'global_index',
+            'hash_key': 'state:int'
+        }],
         conditions=attr('price').gt(10))
 
     result = build(lambda r: r)
 
     expected_item = {
-      "original": "items",
-      "key": ":items",
-      "value": {
-        ":items": {
-          "L": [
-            { "S": "glow" },
-            { "S": "dust" }
-          ]
+        "alias": "#items",
+        "func": None,
+        "key": ":items",
+        "original": "items",
+        "value": {
+            "L": [
+                {
+                    "S": "glow"
+                },
+                {
+                    "S": "dust"
+                }
+            ]
         }
-      },
-      "alias": "#items"
     }
 
-    item = result.get('attributes').get('values')[0]
+    assert result.get('attributes').get('values')[0] == expected_item
 
-    assert item.get('original') == expected_item.get('original')
-    assert item.get('key') == expected_item.get('key')
-    assert item.get('alias') == expected_item.get('alias')
+    expected_gsi = {
+        "hash_key": {
+            "name": "state",
+            "type": "N"
+        },
+        "name": "global_index"
+    }
+
+    assert result.get('gsi')[0] == expected_gsi

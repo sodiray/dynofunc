@@ -1,6 +1,7 @@
 
-from dynamof.core.utils import merge, find
+from dynamof.core.utils import merge, find, flatten
 from dynamof.core.model import Attr, Condition, Function
+from dynamof.core.dynamo import get_safe_alias
 
 
 # condition and
@@ -8,14 +9,16 @@ def cand(*conditions):
     def build(attrs):
         return ' AND '.join([f'({cond.expression(attrs)})' for cond in conditions])
     attributes = merge([cond.attributes for cond in conditions])
-    return Condition(build, attributes)
+    references = flatten([cond.references for cond in conditions])
+    return Condition(build, attributes, references=references)
 
 # condition or
 def cor(*conditions):
     def build(attrs):
         return ' OR '.join([f'({cond.expression(attrs)})' for cond in conditions])
     attributes = merge([cond.attributes for cond in conditions])
-    return Condition(build, attributes)
+    references = flatten([cond.references for cond in conditions])
+    return Condition(build, attributes, references=references)
 
 
 class AttrFunc:
@@ -25,7 +28,8 @@ class AttrFunc:
 
     def __call__(self, name):
 
-        def find_attr(attrs, original_name=name):
+        def find_attr(attrs, original_name=None):
+            original_name = original_name or name
             return find(attrs, lambda a: a.get('original') == original_name)
 
         def equals(value):
@@ -62,14 +66,14 @@ class AttrFunc:
             value_a_key = f'{name}_a'
             value_b_key = f'{name}_b'
             def build(attrs):
-                a = find_attr(attrs)
+                alias = get_safe_alias(name)
                 value_a_attr = find_attr(attrs, original_name=value_a_key)
                 value_b_attr = find_attr(attrs, original_name=value_b_key)
-                return f'{a.alias} BETWEEN {value_a_attr.key} AND {value_b_attr.key}'
+                return f'{alias} BETWEEN {value_a_attr.key} AND {value_b_attr.key}'
             return Condition(build, {
                 value_a_key: value_a,
                 value_b_key: value_b
-            })
+            }, references=[name])
 
         def begins_with(value):
             def build(attrs):

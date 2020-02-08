@@ -1,8 +1,8 @@
 from boto3.dynamodb.types import TypeSerializer
 
-from dynamof.core.utils import guid, merge, update, pipe
+from dynamof.core.utils import guid, merge, update, pipe, find
 from dynamof.core.model import AttributeGroup, Attribute, RequestTree
-from dynamof.core.dynamo import DYNAMO_RESERVED_WORDS
+from dynamof.core.dynamo import get_safe_alias
 from dynamof.core.Immutable import Immutable
 
 
@@ -14,10 +14,7 @@ def parse_attr(key, value):
     def replace_reserved_key(attr):
         """Finds reserved dynamo keywords in the attribute
         names and sets an alias the is safe to use instead"""
-        alias = DYNAMO_RESERVED_WORDS.get(attr.original.upper(), None)
-        if alias is not None:
-            return update(attr, alias=alias)
-        return attr
+        return update(attr, alias=get_safe_alias(attr.original))
 
     def build_key(attr):
         """Builds the key that can be used to reference
@@ -54,6 +51,21 @@ def parse_attr(key, value):
 
     return parse(key, value)
 
+def parse_key(key_name):
+
+    if key_name is None:
+        return None
+
+    annotation = key_name[-4:]
+    key_type = 'N' if annotation == ':int' else 'S'
+    key_name = key_name[:-4] if annotation in [':int', ':str'] else key_name
+
+    return {
+        'name': key_name,
+        'type': key_type
+    }
+
+
 def builder(
     table_name,
     index_name=None,
@@ -79,7 +91,18 @@ def builder(
     attrs = AttributeGroup(
         keys=[parse_attr(k, v) for k, v in key.items()],
         values=[parse_attr(k, v) for k, v in attributes.items()],
-        conditions=[parse_attr(k, v) for k, v in condition_attrs.items()]
-    )
+        conditions=[parse_attr(k, v) for k, v in condition_attrs.items()])
+
+    def update_dicts_in_list(list_of_dicts, keys=None, with_fn=None):
+        if list_of_dicts is None or keys is None or with_fn is None:
+            return list_of_dicts
+        return [{
+            k: v if k not in keys else with_fn(v) for k, v in obj.items()
+        } for obj in list_of_dicts]
+
+    hash_key = parse_key(hash_key)
+    range_key = parse_key(range_key)
+    gsi = update_dicts_in_list(gsi, keys=['range_key', 'hash_key'], with_fn=parse_key)
+    lsi = update_dicts_in_list(lsi, keys=['range_key'], with_fn=parse_key)
 
     return lambda fn: fn(RequestTree(attrs, table_name, index_name, hash_key, range_key, conditions, gsi, lsi))
