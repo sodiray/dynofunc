@@ -1,6 +1,6 @@
 import setuptools
 
-from dynamo.version import VERSION
+from dynamof.version import VERSION
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
