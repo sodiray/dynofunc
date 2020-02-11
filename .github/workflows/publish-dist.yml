@@ -1,0 +1,25 @@
+name: Publish Distribution 📦
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  publish-to-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build distribution 📦
+        run: make build-dist
+      - name: Publish distribution 📦 to PyPI
+        run: >
+          make upload-dist token=${{ secrets.pypi_token }}

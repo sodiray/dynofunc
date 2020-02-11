@@ -1,6 +1,6 @@
 import setuptools
 
-VERSION='2.1.5'
+from dynamof.version import VERSION
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -14,7 +14,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/rayepps/dynamof',
-    download_url=f'https://github.com/rayepps/dynamof/archive/{VERSION}.tar.gz',
     packages=[
         'dynamof',
         'dynamof.core',
