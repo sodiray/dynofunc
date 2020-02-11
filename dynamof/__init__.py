@@ -1,5 +1,7 @@
 from functools import partial
 
+from dynamof.version import VERSION
+
 from dynamof.operations.add import add
 from dynamof.operations.create import create
 from dynamof.operations.delete import delete
