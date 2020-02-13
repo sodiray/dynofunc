@@ -15,7 +15,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version-regex-pattern: >
             VERSION = \\'(.+?)\\'
-          version-file-path: 'dynamof/version.py'
+          version-file-path: 'setup.py'
   publish-to-test-pypi:
     runs-on: ubuntu-latest
     steps:
