@@ -1,9 +1,9 @@
 
-from dynamof.core import builder as ab
-from dynamof.core import args
-from dynamof.core.utils import shake
-from dynamof.core.model import Operation, Condition
-from dynamof.core.response import response
+from dynofunc.core import builder as ab
+from dynofunc.core import args
+from dynofunc.core.utils import shake
+from dynofunc.core.model import Operation, Condition
+from dynofunc.core.response import response
 
 
 def update(table_name: str, key: dict, attributes: dict, conditions: Condition = None):

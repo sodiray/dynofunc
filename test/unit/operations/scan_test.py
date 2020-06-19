@@ -10,10 +10,10 @@ from test.utils.mocks import (
     mock_dynamo_client
 )
 
-from dynamof.core import exceptions
+from dynofunc.core import exceptions
 
-from dynamof.attribute import attr, cand, cor
-from dynamof.operations.scan import scan, run
+from dynofunc.attribute import attr, cand, cor
+from dynofunc.operations.scan import scan, run
 
 def test_scan_is_operation():
     res = scan(table_name='users')

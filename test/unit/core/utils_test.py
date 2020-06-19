@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof.core.utils import guid, update, strip_Decimals, immutable
+from dynofunc.core.utils import guid, update, strip_Decimals, immutable
 
 
 def test_guid_generates_guid():

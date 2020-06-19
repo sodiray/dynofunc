@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
-from dynamof.core.utils import immutable
-from dynamof.attribute import attr, cand, cor
-from dynamof.core.builder import parse_attr
+from dynofunc.core.utils import immutable
+from dynofunc.attribute import attr, cand, cor
+from dynofunc.core.builder import parse_attr
 
 def test_attribute_equals_condition():
     cond = attr('username').equals('sunshie')

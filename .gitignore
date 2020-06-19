@@ -13,4 +13,4 @@ venv
 htmlcov
 .coverage
 dist/
-dynamof.egg-info
+dynofunc.egg-info

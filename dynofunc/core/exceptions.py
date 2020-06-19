@@ -1,5 +1,5 @@
 
-class DynamofException(Exception):
+class DynofuncException(Exception):
    def __init__(self, message):
        self.message = message
        super().__init__(message)
@@ -8,7 +8,7 @@ class DynamofException(Exception):
        self.message = f'{self.message}; {add_message}'
        return self
 
-class PreexistingTableException(DynamofException):
+class PreexistingTableException(DynofuncException):
     def __init__(self):
         message = "Attempted to create a table that already exists"
         super().__init__(message)
@@ -18,7 +18,7 @@ class PreexistingTableException(DynamofException):
         key = 'Cannot create preexisting table'
         return message == key
 
-class TableDoesNotExistException(DynamofException):
+class TableDoesNotExistException(DynofuncException):
     def __init__(self):
         message = "Attempted to do operation on a table that does not exist"
         super().__init__(message)
@@ -28,7 +28,7 @@ class TableDoesNotExistException(DynamofException):
         key = 'Cannot do operations on a non-existent table'
         return message == key
 
-class ConditionNotMetException(DynamofException):
+class ConditionNotMetException(DynofuncException):
     def __init__(self):
         message = "Could not find an item that satisifed the given conditions"
         super().__init__(message)
@@ -37,7 +37,7 @@ class ConditionNotMetException(DynamofException):
         _, code = parse(err)
         return code == 'ConditionalCheckFailedException'
 
-class BadGatewayException(DynamofException):
+class BadGatewayException(DynofuncException):
     def __init__(self):
         message = "Issue communicating with dynamo"
         super().__init__(message)
@@ -46,7 +46,7 @@ class BadGatewayException(DynamofException):
         message, _ = parse(err)
         return message == 'Bad Gateway'
 
-class UnknownDatabaseException(DynamofException):
+class UnknownDatabaseException(DynofuncException):
     def __init__(self, unknown_boto_client_err):
         message, code = parse(unknown_boto_client_err)
         message = f'An unkonwn exception occured when executing request to dynamo: {message} - {code}'

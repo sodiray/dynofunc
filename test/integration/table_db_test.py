@@ -6,8 +6,8 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import attr
-from dynamof import table
+from dynofunc import attr
+from dynofunc import table
 
 def test_secondary_index(db):
 

@@ -5,7 +5,7 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import (
+from dynofunc import (
     create,
     find,
     add,
@@ -17,7 +17,7 @@ from dynamof import (
 def test_numbers_are_not_changed(db):
     """Asserts that numbers inserted into dynamo are not converted
     to another type - **namely Decimals**. See https://github.com/boto/boto3/issues/369
-    This test is to assert that dynamof correctly handles this by converting
+    This test is to assert that dynofunc correctly handles this by converting
     any Decimals that dynamo returns back to a default json parsable property.
     """
 

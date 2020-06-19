@@ -1,13 +1,13 @@
-from dynamof.operations.add import add
-from dynamof.operations.create import create
-from dynamof.operations.delete import delete
-from dynamof.operations.describe import describe
-from dynamof.operations.find import find
-from dynamof.operations.query import query
-from dynamof.operations.update import update
-from dynamof.operations.scan import scan
+from dynofunc.operations.add import add
+from dynofunc.operations.create import create
+from dynofunc.operations.delete import delete
+from dynofunc.operations.describe import describe
+from dynofunc.operations.find import find
+from dynofunc.operations.query import query
+from dynofunc.operations.update import update
+from dynofunc.operations.scan import scan
 
-from dynamof.core.utils import immutable
+from dynofunc.core.utils import immutable
 
 
 def table(db, table_name):

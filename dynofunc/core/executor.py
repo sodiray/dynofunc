@@ -3,10 +3,10 @@ import logging
 
 from botocore.exceptions import ClientError
 
-from dynamof.core.exceptions import factory
+from dynofunc.core.exceptions import factory
 
 
-logger = logging.getLogger('dynamof')
+logger = logging.getLogger('dynofunc')
 
 def execute(client, operation):
 

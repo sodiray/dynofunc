@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof.core import args
-from dynamof.core.utils import immutable
+from dynofunc.core import args
+from dynofunc.core.utils import immutable
 
 def test_GlobalSecondaryIndexes_result():
     mock_request = immutable(

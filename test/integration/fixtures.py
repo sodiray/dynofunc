@@ -4,7 +4,7 @@ from functools import partial
 from boto3 import client
 from botocore.config import Config
 
-from dynamof import db
+from dynofunc import db
 
 
 URL = 'http://localstack:4569'

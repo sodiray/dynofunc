@@ -19,11 +19,11 @@ test-upload-dist:
 
 .PHONY: test
 test:
-	PYTHONPATH=`pwd` python3 -m pytest --cov=dynamof --cov-report term:skip-covered --cov-fail-under=100 --cov-report html test/unit/ -vv
+	PYTHONPATH=`pwd` python3 -m pytest --cov=dynofunc --cov-report term:skip-covered --cov-fail-under=100 --cov-report html test/unit/ -vv
 
 .PHONY: lint
 lint:
-	pylint dynamof
+	pylint dynofunc
 
 .PHONY: check
 check: lint test
@@ -40,3 +40,11 @@ install:
 .PHONY: travis
 travis: check
 	codeclimate-test-reporter
+
+.PHONY: clean
+clean:
+	rm -rf htmlcov
+	rm -rf .coverage
+	rm -rf dist/
+	rm -rf dynofunc.egg-info
+	rm -rf .pytest_cache

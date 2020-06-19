@@ -1,9 +1,9 @@
 from boto3.dynamodb.types import TypeSerializer
 
-from dynamof.core.utils import guid, merge, update, pipe, find
-from dynamof.core.model import AttributeGroup, Attribute, RequestTree
-from dynamof.core.dynamo import get_safe_alias
-from dynamof.core.Immutable import Immutable
+from dynofunc.core.utils import guid, merge, update, pipe, find
+from dynofunc.core.model import AttributeGroup, Attribute, RequestTree
+from dynofunc.core.dynamo import get_safe_alias
+from dynofunc.core.Immutable import Immutable
 
 
 def parse_attr(key, value):

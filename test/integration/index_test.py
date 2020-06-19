@@ -5,7 +5,7 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import attr, table, cand
+from dynofunc import attr, table, cand
 
 def test_local_secondary_index(db):
 

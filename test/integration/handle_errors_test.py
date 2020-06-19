@@ -9,8 +9,8 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import attr
-from dynamof import (
+from dynofunc import attr
+from dynofunc import (
     create,
     find,
     add,
@@ -18,7 +18,7 @@ from dynamof import (
     delete,
     query
 )
-from dynamof.core.exceptions import (
+from dynofunc.core.exceptions import (
     UnknownDatabaseException,
     PreexistingTableException,
     ConditionNotMetException,

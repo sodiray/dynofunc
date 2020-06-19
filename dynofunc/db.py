@@ -1,6 +1,6 @@
 from functools import partial
 
-from dynamof.core.executor import execute
+from dynofunc.core.executor import execute
 
 
 def db(client):

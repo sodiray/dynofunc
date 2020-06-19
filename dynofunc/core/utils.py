@@ -4,7 +4,7 @@ import decimal
 import functools
 from collections import ChainMap
 
-from dynamof.core.Immutable import Immutable
+from dynofunc.core.Immutable import Immutable
 
 
 def guid():

@@ -6,18 +6,18 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='dynamof',
+    name='dynofunc',
     version=VERSION,
     author='Ray Epps',
     author_email='rayharryepps@gmail.com',
     description='A small interface for more easily making calls to dynamo using boto.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/rayepps/dynamof',
+    url='https://github.com/rayepps/dynofunc',
     packages=[
-        'dynamof',
-        'dynamof.core',
-        'dynamof.operations'
+        'dynofunc',
+        'dynofunc.core',
+        'dynofunc.operations'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

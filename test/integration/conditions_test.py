@@ -5,8 +5,8 @@ import random
 
 from test.integration.fixtures import db
 
-from dynamof import attr, cand
-from dynamof import (
+from dynofunc import attr, cand
+from dynofunc import (
     create,
     add,
     query

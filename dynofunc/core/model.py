@@ -1,5 +1,5 @@
 
-from dynamof.core.utils import immutable
+from dynofunc.core.utils import immutable
 
 
 def Attr(equals, gt, lt, lt_or_eq, gt_or_eq, between, begins_with):
@@ -85,7 +85,7 @@ def Attribute(original, key, value, alias, func):
         Ex. { 'item': 'a' } => '#item'
 
     func : Function
-        A func from `dynamof.funcs` that should be called to modify the attr
+        A func from `dynofunc.funcs` that should be called to modify the attr
     """
     return immutable({
         'original': original,

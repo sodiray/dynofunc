@@ -4,9 +4,9 @@ from unittest.mock import MagicMock
 
 from test.utils.mocks import mock_unknown_exc
 
-from dynamof.core.executor import execute
-from dynamof.core.model import Operation
-from dynamof.core.exceptions import DynamofException
+from dynofunc.core.executor import execute
+from dynofunc.core.model import Operation
+from dynofunc.core.exceptions import DynofuncException
 
 def test_execute_calls_runner():
     mock_client = 'MOCK_CLIENT'
@@ -26,7 +26,7 @@ def test_execute_converts_exc_to_custom_exc():
 
     try:
         execute(None, mock_operation)
-    except DynamofException as exc:
+    except DynofuncException as exc:
         pass
     else:
         pytest.fail('Execute did not raise expected exception')

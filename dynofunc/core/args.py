@@ -1,9 +1,9 @@
 """Args is a collection of function that take in a request and return a specific
 boto3 argument"""
 
-from dynamof.core.model import RequestTree
-from dynamof.core.utils import merge, immutable
-from dynamof.core.dynamo import get_safe_alias
+from dynofunc.core.model import RequestTree
+from dynofunc.core.utils import merge, immutable
+from dynofunc.core.dynamo import get_safe_alias
 
 
 def TableName(request: RequestTree):

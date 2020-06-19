@@ -5,8 +5,8 @@ from boto3 import client
 
 from test.integration.fixtures import db
 
-from dynamof import attr
-from dynamof import (
+from dynofunc import attr
+from dynofunc import (
     create,
     find,
     add,

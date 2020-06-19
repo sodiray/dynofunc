@@ -10,10 +10,10 @@ from test.utils.mocks import (
     mock_dynamo_client
 )
 
-from dynamof.core import exceptions
+from dynofunc.core import exceptions
 
-from dynamof.attribute import attr, cand, cor
-from dynamof.operations.create import create, run
+from dynofunc.attribute import attr, cand, cor
+from dynofunc.operations.create import create, run
 
 
 def test_create_is_operation():

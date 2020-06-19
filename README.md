@@ -1,44 +1,45 @@
 
-# Dynamof
+# Dynofunc
+_the library formerly known as Dynamof_
 
-![Travis (.org](https://img.shields.io/travis/rayepps/dynamof)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e8c1e3cf175c007a591a/test_coverage)](https://codeclimate.com/github/rayepps/dynamof/test_coverage)
-![PyPI - License](https://img.shields.io/pypi/l/dynamof)
+![Travis (.org](https://img.shields.io/travis/rayepps/dynofunc)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e8c1e3cf175c007a591a/test_coverage)](https://codeclimate.com/github/rayepps/dynofunc/test_coverage)
+![PyPI - License](https://img.shields.io/pypi/l/dynofunc)
 
 A small :fire: interface for more easily making calls to dynamo using boto. No bloated ORM - just functions that make creating the complex objects needed to pass to boto3 quick and easy.
 
 ## Install
-`pip install dynamof`
+`pip install dynofunc`
 
 ## Basic Features
 
 - Simplifying `boto3` function APIs ([see an example](#example-create-a-table-in-dynamo))
-> If you've ever used boto3 directly before you know the pain that can exist trying to write a generic `KeyCondition` or `ConditionExpression`. `dynamof` does these things for you. It provides simple functions that take common sense arguments and build the complex objects boto3 uses for you.
+> If you've ever used boto3 directly before you know the pain that can exist trying to write a generic `KeyCondition` or `ConditionExpression`. `dynofunc` does these things for you. It provides simple functions that take common sense arguments and build the complex objects boto3 uses for you.
 
-- Standardizing `boto3` error handling ([see an example](#example-catch-errors-from-dynamof))
-> If you've ever used boto3 directly you know that handling errors is the absolute worst... how much time I've spent googling how to catch this error or that error.... and they're all different! `dynamof` wraps the calls to boto3, catches all of its errors, inspects them to determine the specific error it represents, and then throws a concrete and documented exception you can catch with a standard `try...except`.
+- Standardizing `boto3` error handling ([see an example](#example-catch-errors-from-dynofunc))
+> If you've ever used boto3 directly you know that handling errors is the absolute worst... how much time I've spent googling how to catch this error or that error.... and they're all different! `dynofunc` wraps the calls to boto3, catches all of its errors, inspects them to determine the specific error it represents, and then throws a concrete and documented exception you can catch with a standard `try...except`.
 
 - Its just a library
-> `dynamof` is not a framework and its not opinionated. `dynamof` is simply a collection of deterministic functions that take in arguments and output boto3 command objects. We also provide a small wrapper for executing those boto3 calls behind the scenes if thats not something you want to do yourself. The benefit, is that you can use raw boto3 calls and `dynamof` calls right next to each other. `dyanmof` doesn't replace boto3, its a simple layer that sits on top to make things easier and more maintainable for you.
+> `dynofunc` is not a framework and its not opinionated. `dynofunc` is simply a collection of deterministic functions that take in arguments and output boto3 command objects. We also provide a small wrapper for executing those boto3 calls behind the scenes if thats not something you want to do yourself. The benefit, is that you can use raw boto3 calls and `dynofunc` calls right next to each other. `dyanmof` doesn't replace boto3, its a simple layer that sits on top to make things easier and more maintainable for you.
 
-`dynamof` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynamof` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
+`dynofunc` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynofunc` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
 
-## Why Dynamof?
-If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Boto3. Kudos to the people who made Pynamo, its great, but it really doesn't scale well. And your stuck with the ORM features even if you don't want them. Interacting with Boto3 directly is a pain. With things like `KeyCondition`s and `ConditionExpression`s being so difficult to easily grasp you end up duplicating a lot of code in your database/repository/DAL layer. This was my experience. In my early day's I used Pynamo. Once I got tired of trying to bend it to my will at scale I started using Boto3 directly. But... this was still annoying. I wanted a non-opinonated library that could sit on top of Botot3 and do the repetitive, annoying to code work for me. `dynamof` was born.
+## Why Dynofunc?
+If you're using python and dynamo you have 2 options: an ORM like PynamoDB or Boto3. Kudos to the people who made Pynamo, its great, but it really doesn't scale well. And your stuck with the ORM features even if you don't want them. Interacting with Boto3 directly is a pain. With things like `KeyCondition`s and `ConditionExpression`s being so difficult to easily grasp you end up duplicating a lot of code in your database/repository/DAL layer. This was my experience. In my early day's I used Pynamo. Once I got tired of trying to bend it to my will at scale I started using Boto3 directly. But... this was still annoying. I wanted a non-opinonated library that could sit on top of Botot3 and do the repetitive, annoying to code work for me. `dynofunc` was born.
 
 # Whats Supported?
 See the two lists below for what has been implemented and what hasn't. If your a developer and want to do something thats not done yet its super easy to implement a new operation. See [the developer guide](#developer_guide) for directions.
 
 ## Currently Supported Calls
 
-- :white_check_mark: Create table [[code](dynamof/operations/create.py) | [docs](#create-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create-table)]
-- :white_check_mark: Describe table [[code](dynamof/operations/describe.py) | [docs](#describe-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe-table)]
-- :white_check_mark: Add item [[code](dynamof/operations/add.py) | [docs](#add-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
-- :white_check_mark: Find item [[code](dynamof/operations/find.py) | [docs](#find-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
-- :white_check_mark: Update item [[code](dynamof/operations/update.py) | [docs](#update-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
-- :white_check_mark: Delete item [[code](dynamof/operations/delete.py) | [docs](#delete-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
-- :white_check_mark: Query table [[code](dynamof/operations/query.py) | [docs](#query-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
-- :white_check_mark: Scan table [[code](dynamof/operations/scan.py) | [docs](#scan-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
+- :white_check_mark: Create table [[code](dynofunc/operations/create.py) | [docs](#create-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.create-table)]
+- :white_check_mark: Describe table [[code](dynofunc/operations/describe.py) | [docs](#describe-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.describe-table)]
+- :white_check_mark: Add item [[code](dynofunc/operations/add.py) | [docs](#add-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.put_item)]
+- :white_check_mark: Find item [[code](dynofunc/operations/find.py) | [docs](#find-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.get_item)]
+- :white_check_mark: Update item [[code](dynofunc/operations/update.py) | [docs](#update-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_item)]
+- :white_check_mark: Delete item [[code](dynofunc/operations/delete.py) | [docs](#delete-item) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.delete_item)]
+- :white_check_mark: Query table [[code](dynofunc/operations/query.py) | [docs](#query-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query)]
+- :white_check_mark: Scan table [[code](dynofunc/operations/scan.py) | [docs](#scan-table) | [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.scan)]
 
 ## Currently Unsupported Calls
 - :x: `batch_get_item` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.batch_get_item)]
@@ -85,23 +86,23 @@ See the two lists below for what has been implemented and what hasn't. If your a
 ## Example: Create a table in dynamo
 ```py
 from boto3 import client
-from dynamof.executor import execute
-from dynamof.operations import create
+from dynofunc.executor import execute
+from dynofunc.operations import create
 
 client = client('dynamodb', endpoint_url='http://localstack:4569')
 
 execute(client, create(table_name='users', hash_key='username'))
 ```
-First thing to note... `execute(client, some_operation(...))` isn't _sexy_... and as engineers _sexy_ is important. Because `dynamof` is a simple functional utility library its very easy to bend it into any api you would like.
+First thing to note... `execute(client, some_operation(...))` isn't _sexy_... and as engineers _sexy_ is important. Because `dynofunc` is a simple functional utility library its very easy to bend it into any api you would like.
 
-## Example: Customize the way you call dynamof
+## Example: Customize the way you call dynofunc
 ### Keep it functional
 ```py
 from functools import partial
 from boto3 import client
-from dynamof.executor import execute
-from dynamof.operations import create
-from dynamof.attribute import attr
+from dynofunc.executor import execute
+from dynofunc.operations import create
+from dynofunc.attribute import attr
 
 client = client('dynamodb', endpoint_url='http://localstack:4569')
 db = partial(execute, client)
@@ -153,9 +154,9 @@ users.delete(key={'id': 21 })
 
 ```
 
-## Example: Catch errors from dynamof
+## Example: Catch errors from dynofunc
 ```py
-from dynamof.exceptions import (
+from dynofunc.exceptions import (
     UnknownDatabaseException,
     ConditionNotMetException,
     BadGatewayException,
@@ -177,10 +178,10 @@ except UnknownDatabaseException:
   # Handle an unknown issue
 ```
 
-## Example: Use dynamof to build boto3 arguments but still call boto3 yourself
+## Example: Use dynofunc to build boto3 arguments but still call boto3 yourself
 ```py
-from dynamof import operations
-from dynamof.conditions import attr
+from dynofunc import operations
+from dynofunc.conditions import attr
 
 
 query = operations.query(
@@ -191,11 +192,11 @@ result = client.query(**query.description)
 ```
 
 # API Documentation
-[dynamof.operations](#operations)  
-[dynamof.conditions](#conditions)  
+[dynofunc.operations](#operations)  
+[dynofunc.conditions](#conditions)  
 
 ## Operations
-[See the code](dynamof/operations)
+[See the code](dynofunc/operations)
 [See the test](test/unit/operations_test.py)  
 
 ### Create Table
@@ -296,7 +297,7 @@ query(table_name, conditions)
 | Parameter  | Required | Data Type | Description | Example |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | `table_name`  | yes  | `str` | The name of the table to execute the query on | `'users'` |
-| `conditions ` | yes | `dynamof.conditions.Condition` | This value should be built using the `dynamof.conditions` module. See the docs on that module. | `attr('username').equals('sunshie')` will build a proper Condition to pass. |
+| `conditions ` | yes | `dynofunc.conditions.Condition` | This value should be built using the `dynofunc.conditions` module. See the docs on that module. | `attr('username').equals('sunshie')` will build a proper Condition to pass. |
 
 #### :orange_book: Limitations
 - Cannot do pagination
@@ -307,12 +308,12 @@ query(table_name, conditions)
 
 ## Conditions
 
-The `dynamof.conditions` module provides utility methods that make it simple to generate the complex data object boto3 needs when specifying conditions for querying, scanning, and other operations. Looking at the [docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query) for the query function you'll see `KeyConditionExpression`. This is the parameter this module was created to build.
+The `dynofunc.conditions` module provides utility methods that make it simple to generate the complex data object boto3 needs when specifying conditions for querying, scanning, and other operations. Looking at the [docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query) for the query function you'll see `KeyConditionExpression`. This is the parameter this module was created to build.
 
 **Example**
 
 ```py
-from dynamof.conditions import attr
+from dynofunc.conditions import attr
 
 cond = attr('username').equals('sunshie')
 
@@ -333,7 +334,7 @@ cond.attr_values
 | `name`  | yes  | `str` | The name of the attribute to begin using on a condition. Could be a column you want to match exactly or if its a number type then it could be a column you want to check for `>` or `<` on | `'username'` |
 
 
-The `attr` function returns a `dynamof.conditions.Attribute` that contains three methods
+The `attr` function returns a `dynofunc.conditions.Attribute` that contains three methods
 
 * `equals(value)`
 * `greater_than(value)`
@@ -347,13 +348,13 @@ Takes any number of condition expressions and combines them using the _and_ rule
 
 | Parameter  | Required | Data Type | Description | Example |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| `conditions`  | yes  | `*dynamof.conditions.Condition` | Takes any number of `Condition` instances  | `cand(attr('points').less_than(50)` |
+| `conditions`  | yes  | `*dynofunc.conditions.Condition` | Takes any number of `Condition` instances  | `cand(attr('points').less_than(50)` |
 
 # Developer Guide
 As a developer you can probably guide yourself, you just want to know in simple terms "how it works". Thats what I'll talk about here - the design, what calls what, what does what. After reading the developer guide you should feel comfortable making changes.
 
 ## The Design
-The goal when `dynamof` was started was to create the complicated objects that boto3 takes in as arguments to its calls. It wasn't until later that a wrapper for executing those calls inside `dynamof` was added so we could standardize wild boto3 exceptions for the client. This means, at the core of `dynamof` is `operations` and `builder` - its that simple. The builder is (for the most part) a DTO (with some sugar) for containg all the arguments you specify for a given operation. If you look in any operation file you'll find the same pattern:
+The goal when `dynofunc` was started was to create the complicated objects that boto3 takes in as arguments to its calls. It wasn't until later that a wrapper for executing those calls inside `dynofunc` was added so we could standardize wild boto3 exceptions for the client. This means, at the core of `dynofunc` is `operations` and `builder` - its that simple. The builder is (for the most part) a DTO (with some sugar) for containg all the arguments you specify for a given operation. If you look in any operation file you'll find the same pattern:
 ```py
 def operation_name(table_name, key, conditions=None):
 
@@ -393,7 +394,7 @@ def test_operation_creates_description_with_table_name():
 
 ## How to add an operation
 Given the information above, here is a checklist you might use when addding a new operation. For example sake, lets say the operation name is `deploy`.
-1. Create a file for the new `deploy` operation at `dynamof/operations/deploy.py`
+1. Create a file for the new `deploy` operation at `dynofunc/operations/deploy.py`
 2. Define two functions inside this file `deploy(...)` and `run(client, description)`
 3. Add any arguments you might need to the `deploy` function
 4. Use the builder to generate all the arguments boto3 expects given the `deploy` function arguments.

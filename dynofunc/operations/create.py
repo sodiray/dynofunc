@@ -1,9 +1,9 @@
 
-from dynamof.core import builder as ab
-from dynamof.core import args
-from dynamof.core.utils import shake
-from dynamof.core.model import Operation
-from dynamof.core.response import response
+from dynofunc.core import builder as ab
+from dynofunc.core import args
+from dynofunc.core.utils import shake
+from dynofunc.core.model import Operation
+from dynofunc.core.response import response
 
 
 def create(table_name: str, hash_key: str, range_key: str = None, gsi: str = None, lsi: str = None):

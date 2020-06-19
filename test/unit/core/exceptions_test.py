@@ -10,10 +10,10 @@ from test.utils.mocks import (
     mock_unknown_exc
 )
 
-from dynamof.core.exceptions import (
+from dynofunc.core.exceptions import (
     parse,
     factory,
-    DynamofException,
+    DynofuncException,
     PreexistingTableException,
     TableDoesNotExistException,
     ConditionNotMetException,
@@ -23,7 +23,7 @@ from dynamof.core.exceptions import (
 
 
 def test_base_exception_adds_info():
-    res = DynamofException('').info('zzz')
+    res = DynofuncException('').info('zzz')
     assert 'zzz' in res.message
 
 def test_parses_handles_whatever_we_pass():

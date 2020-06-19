@@ -10,10 +10,10 @@ from test.utils.mocks import (
     mock_dynamo_client
 )
 
-from dynamof.core import exceptions
+from dynofunc.core import exceptions
 
-from dynamof.attribute import attr, cand, cor
-from dynamof.operations.describe import describe, run
+from dynofunc.attribute import attr, cand, cor
+from dynofunc.operations.describe import describe, run
 
 
 def test_description_builds_correct_description():

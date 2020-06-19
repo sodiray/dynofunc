@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 
 from test.utils.assertions import assertObjectsEqual
 
-from dynamof.core import builder as ab
-from dynamof.attribute import attr
+from dynofunc.core import builder as ab
+from dynofunc.attribute import attr
 
 
 def test_parse_key():

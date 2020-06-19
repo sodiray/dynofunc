@@ -1,7 +1,7 @@
 
-from dynamof.core.utils import merge, find, flatten
-from dynamof.core.model import Attr, Condition, Function
-from dynamof.core.dynamo import get_safe_alias
+from dynofunc.core.utils import merge, find, flatten
+from dynofunc.core.model import Attr, Condition, Function
+from dynofunc.core.dynamo import get_safe_alias
 
 
 # condition and

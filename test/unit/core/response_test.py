@@ -1,5 +1,5 @@
 
-from dynamof.core.response import destructure_type_tree, response
+from dynofunc.core.response import destructure_type_tree, response
 
 
 def test_destructure_handles_none():

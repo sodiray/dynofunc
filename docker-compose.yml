@@ -14,10 +14,10 @@ services:
       - AWS_ACCESS_KEY_ID=ignoredbutrequiredtowork
       - AWS_SECRET_ACCESS_KEY=ignoredbutrequiredtowork
     volumes:
-      - .:/usr/src/dynamof
+      - .:/usr/src/dynofunc
     links:
       - localstack:localstack
-    command: python -u /usr/src/dynamof/test/integration/run.py
+    command: python -u /usr/src/dynofunc/test/integration/run.py
 
   ##
   ##  AWS

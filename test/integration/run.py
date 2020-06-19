@@ -6,8 +6,8 @@ import pytest
 
 from test.integration.fixtures import db_func
 
-from dynamof.core.exceptions import TableDoesNotExistException
-from dynamof import create, describe
+from dynofunc.core.exceptions import TableDoesNotExistException
+from dynofunc import create, describe
 
 DATABASE_UPTIME_WAIT = 3 # seconds
 DATABASE_UPTIME_RETRIES = 6 # times
