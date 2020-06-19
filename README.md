@@ -14,12 +14,15 @@ A small :fire: interface for more easily making calls to dynamo using boto. No b
 ## Basic Features
 
 - Simplifying `boto3` function APIs ([see an example](#example-create-a-table-in-dynamo))
+
 > If you've ever used boto3 directly before you know the pain that can exist trying to write a generic `KeyCondition` or `ConditionExpression`. `dynofunc` does these things for you. It provides simple functions that take common sense arguments and build the complex objects boto3 uses for you.
 
 - Standardizing `boto3` error handling ([see an example](#example-catch-errors-from-dynofunc))
+
 > If you've ever used boto3 directly you know that handling errors is the absolute worst... how much time I've spent googling how to catch this error or that error.... and they're all different! `dynofunc` wraps the calls to boto3, catches all of its errors, inspects them to determine the specific error it represents, and then throws a concrete and documented exception you can catch with a standard `try...except`.
 
 - Its just a library
+
 > `dynofunc` is not a framework and its not opinionated. `dynofunc` is simply a collection of deterministic functions that take in arguments and output boto3 command objects. We also provide a small wrapper for executing those boto3 calls behind the scenes if thats not something you want to do yourself. The benefit, is that you can use raw boto3 calls and `dynofunc` calls right next to each other. `dyanmof` doesn't replace boto3, its a simple layer that sits on top to make things easier and more maintainable for you.
 
 `dynofunc` wraps the `boto3.client('dynamodb')` ([docs](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#dynamodb)) functions exposing much easier to use api's. It's written in a functional style with the goal to be as useful to anyone in any way as possible. The wrappers around boto3 functions are split into two parts: `operations` and `runners`. A runner runs a specific operations. The operation contains all the necessary information for a dynamo action to be ran. This means, you don't have to use `dynofunc` to actually interact with dynamo if you don't want to but you could still use it as a utility to more easily generate the complex objects that are passed to boto3 functions.
@@ -80,9 +83,7 @@ See the two lists below for what has been implemented and what hasn't. If your a
 - :x: `update_table_replica_auto_scaling` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_table_replica_auto_scaling)]
 - :x: `update_time_to_live` [[boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_time_to_live)]
 
-
 # Getting Started
-
 ## Example: Create a table in dynamo
 ```py
 from boto3 import client

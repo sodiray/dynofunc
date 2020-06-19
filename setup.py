@@ -11,8 +11,7 @@ setuptools.setup(
     author='Ray Epps',
     author_email='rayharryepps@gmail.com',
     description='A small interface for more easily making calls to dynamo using boto.',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description="See github @ https://github.com/rayepps/dynofunc",
     url='https://github.com/rayepps/dynofunc',
     packages=[
         'dynofunc',
