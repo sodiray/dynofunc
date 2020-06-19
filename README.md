@@ -2,7 +2,7 @@
 # Dynofunc
 _the library formerly known as Dynamof_
 
-![Travis (.org](https://img.shields.io/travis/rayepps/dynofunc)
+![Build](https://github.com/rayepps/dynofunc/workflows/Build/badge.svg)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e8c1e3cf175c007a591a/test_coverage)](https://codeclimate.com/github/rayepps/dynofunc/test_coverage)
 ![PyPI - License](https://img.shields.io/pypi/l/dynofunc)
 
